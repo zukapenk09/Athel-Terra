@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Athel-Terra</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+ --bg:#f5f1e8;--panel:#fffdf9;--ink:#231f1a;--dim:#6d6458;--line:#cfc4b0;--accent:#8a5a2b;
+ --hot:#9c2f2f;--ok:#2f7d4f;--mana:#2b6ca8;--sta:#8a6a3b;color-scheme:light;}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+ --bg:#17150f;--panel:#201d16;--ink:#efe8da;--dim:#9d9483;--line:#3b352a;--accent:#d4a05c;
+ --hot:#e0675f;--ok:#5fb183;--mana:#6aa8e0;--sta:#c9a86a;color-scheme:dark;}}
+:root[data-theme="dark"]{--bg:#17150f;--panel:#201d16;--ink:#efe8da;--dim:#9d9483;--line:#3b352a;
+ --accent:#d4a05c;--hot:#e0675f;--ok:#5fb183;--mana:#6aa8e0;--sta:#c9a86a;color-scheme:dark;}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.4}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--panel);border-bottom:1px solid var(--line);padding:9px 11px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--panel);z-index:21}
+h1{font-size:15px;margin:0 0 7px;font-weight:650}
+h2{font-size:13px;margin:16px 0 7px;font-weight:650;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
+.bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+button,select,input{font:inherit;font-size:13px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:5px 9px}
+button{cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.danger{color:var(--hot)}
+button.armed{background:var(--hot);color:#fff;border-color:var(--hot)}
+button.sm{padding:3px 7px;font-size:12px}
+.wrap{padding:10px;max-width:1100px;margin:0 auto}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:10px 11px;margin-bottom:9px}
+.card.foe{border-left:3px solid var(--hot)}
+.top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:7px}
+.nm{font-weight:650;font-size:15px}
+.meta{color:var(--dim);font-size:12.5px}
+.spacer{flex:1}
+.pool{margin:5px 0}
+.plabel{display:flex;justify-content:space-between;font-size:12px;color:var(--dim);margin-bottom:2px;font-variant-numeric:tabular-nums}
+.track{height:7px;background:var(--line);border-radius:4px;overflow:hidden}
+.fill{height:100%;transition:width .15s}
+.hp .fill{background:var(--ok)}.mn .fill{background:var(--mana)}.st .fill{background:var(--sta)}
+.ctl{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px;align-items:center}
+.ctl input{width:66px}
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.chip{font-size:11.5px;border:1px solid var(--line);border-radius:20px;padding:2px 9px;color:var(--dim)}
+.chip.good{border-color:var(--ok);color:var(--ok)}
+.chip.bad{border-color:var(--hot);color:var(--hot)}
+.band{font-weight:650}
+.log{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13px;max-height:190px;overflow:auto}
+.log div{padding:2px 0;border-bottom:1px solid var(--line);color:var(--dim)}
+.log div:last-child{border-bottom:0}
+.log b{color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(74px,1fr));gap:6px;align-items:end}
+.grid label{font-size:11px;color:var(--dim);display:block;margin-bottom:2px}
+.grid input,.grid select{width:100%}
+.note{color:var(--dim);font-size:12.5px;margin:7px 2px}
+.edit{border-top:1px solid var(--line);margin-top:9px;padding-top:9px}
+textarea{width:100%;min-height:130px;font-family:ui-monospace,monospace;font-size:12px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px}
+.hidden{display:none}
+.msg{margin:0 0 11px;padding:8px 11px;border-radius:9px;max-width:88%;white-space:pre-wrap;line-height:1.45}
+.msg.me{background:var(--accent);color:#fff;margin-left:auto}
+.msg.ai{background:var(--bg);border:1px solid var(--line)}
+.msg.sys{background:transparent;color:var(--dim);font-size:12.5px;border:0;padding:2px 0;max-width:100%}
+.mtools{margin-top:6px;display:none;gap:4px}
+.msg:hover .mtools{display:flex}
+.msg.me .mtools button{color:#fff;border-color:rgba(255,255,255,.45);background:transparent}
+.orow{display:flex;gap:8px;align-items:center;padding:4px 6px;border-radius:6px;font-size:13.5px}
+.orow.now{background:var(--accent);color:#fff;font-weight:650}
+.orow.foe{color:var(--hot)}
+.orow.now.foe{color:#fff}
+.orow .ini{font-variant-numeric:tabular-nums;width:34px;text-align:right;opacity:.8}
+.orow .who{flex:1}
+.irow{display:flex;gap:6px;align-items:center;margin:3px 0;font-size:13px}
+.irow input{width:62px}
+.irow span{flex:1}
+</style>
+</head>
+<body>
+<header>
+  <h1>Athel-Terra</h1>
+  <div class="bar">
+    <button id="tabRoster" class="on">Party</button>
+    <button id="tabFoes">Encounter</button>
+    <button id="tabAdd">Add</button>
+    <button id="tabChat">Chat</button>
+    <button id="tabPrompt">For the AI</button>
+    <span style="flex:1"></span>
+    <button id="combatBtn">Combat: off</button>
+    <button id="revealBtn">Enemy HP: hidden</button>
+    <button id="long" class="sm">Long Rest</button>
+    <button id="endEnc" class="sm danger">End encounter</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <div id="initPanel" class="card hidden">
+    <div class="top" style="margin-bottom:5px">
+      <span class="nm">Round <span id="roundNo">0</span></span>
+      <span class="spacer"></span>
+      <button class="sm" id="prevTurn">◀ Back</button>
+      <button class="sm on" id="nextTurn">Next turn ▶</button>
+      <button class="sm" id="rollInit">Build order</button>
+      <button class="sm danger" id="clearInit">Clear</button>
+    </div>
+    <div id="initList"></div>
+    <div class="note" style="margin-bottom:0">Enter each initiative roll, then <b>Build order</b>. A boss with two or three entries gets that many places, rolled separately, per Elites &amp; Bosses §V.</div>
+  </div>
+
+  <div id="viewRoster"></div>
+  <div id="viewFoes" class="hidden"></div>
+
+  <div id="viewAdd" class="hidden">
+    <div class="card">
+      <h2 style="margin-top:0">Add a combatant</h2>
+      <div class="grid">
+        <div><label>Name</label><input id="aName" placeholder="Name"></div>
+        <div><label>Side</label><select id="aSide"><option value="party">Party</option><option value="foe">Enemy</option></select></div>
+        <div><label>Class</label><select id="aClass">
+          <option>Tank</option><option>Fighter</option><option>Ranger</option>
+          <option>Cleric</option><option>Summoner</option><option>Mage</option>
+          <option value="Creature">Creature</option></select></div>
+        <div><label>Level</label><input id="aLevel" type="number" value="5" min="1"></div>
+        <div><label>STR</label><input id="aSTR" type="number" value="10" min="0"></div>
+        <div><label>DEX</label><input id="aDEX" type="number" value="10" min="0"></div>
+        <div><label>CON</label><input id="aCON" type="number" value="10" min="0"></div>
+        <div><label>INT</label><input id="aINT" type="number" value="10" min="0"></div>
+        <div><label>WIS</label><input id="aWIS" type="number" value="10" min="0"></div>
+        <div><label>CHA</label><input id="aCHA" type="number" value="10" min="0"></div>
+        <div><button id="aGo" class="on">Add</button></div>
+      </div>
+      <div class="note">
+        <b>HP</b> = 20 + (CON×8) + (Level×3) &nbsp;·&nbsp; <b>Mana</b> = (INT×8) + (WIS×6) + (Level×2) &nbsp;·&nbsp; <b>Stamina</b> = 20 + (STR+DEX+CON)×4
+        <br><b>Modifier</b> = every full 10 attribute points is +1, capped at +5, per Character Progression.
+      </div>
+    </div>
+  </div>
+
+  <div id="viewChat" class="hidden">
+    <div class="card" id="chatCfg">
+      <div class="grid">
+        <div><label>Backend</label><select id="cBackend">
+          <option value="kobold">KoboldCpp (local)</option>
+          <option value="openrouter">OpenRouter</option>
+          <option value="openai">OpenAI-compatible</option>
+        </select></div>
+        <div><label>URL</label><input id="cUrl" placeholder="http://localhost:5001"></div>
+        <div><label>API key</label><input id="cKey" type="password" placeholder="only for cloud"></div>
+        <div><label>Model</label><input id="cModel" placeholder="e.g. anthropic/claude-3.5-haiku"></div>
+        <div><label>Max tokens</label><input id="cMax" type="number" value="4000"></div>
+        <div><label>Temperature</label><input id="cTemp" type="number" step="0.1" value="0.7"></div>
+        <div><label>Unprompted</label><select id="cIdle">
+          <option value="0">off</option>
+          <option value="20">after 20 s of silence</option>
+          <option value="45">after 45 s</option>
+          <option value="90">after 90 s</option>
+        </select></div>
+        <div><label>React to events</label><select id="cEvents">
+          <option value="1">yes — she comments on the board</option>
+          <option value="0">no</option>
+        </select></div>
+        <div><label>Mic transcription</label><select id="cSttMode">
+          <option value="groq">Groq Whisper (free, any browser)</option>
+          <option value="browser">Browser speech (Chrome/Edge only)</option>
+        </select></div>
+        <div><label>Groq key</label><input id="cSttKey" type="password" placeholder="gsk_..."></div>
+        <div><label>After transcribing</label><select id="cSttSend">
+          <option value="0">put it in the box</option>
+          <option value="1">send immediately</option>
+        </select></div>
+        <div><label>Voice</label><select id="cTtsMode">
+          <option value="browser">Browser (free, robotic)</option>
+          <option value="google">Google WaveNet</option>
+          <option value="eleven">ElevenLabs</option>
+          <option value="qwen">Qwen3-TTS (local)</option>
+        </select></div>
+        <div><label>Voice key</label><input id="cTtsKey" type="password" placeholder="Google / ElevenLabs key — blank for Qwen"></div>
+        <div><label>Qwen URL</label><input id="cQwenUrl" placeholder="http://127.0.0.1:8000"></div>
+        <div><label>Qwen endpoint</label><input id="cQwenApi" placeholder="/run_voice_design"></div>
+        <div style="grid-column:1/-1"><label>Voice description — only for /run_voice_design</label><input id="cQwenDesign" placeholder="leave blank when using a saved voice file"></div>
+        <div style="grid-column:1/-1"><label>Saved voice file (.pt) — for /load_prompt_and_gen</label>
+          <input type="file" id="cQwenPt" accept=".pt">
+          <span class="meta" id="cPtInfo"></span></div>
+        <div><label>Voice name / ID</label><input id="cTtsVoice" placeholder="en-GB-Wavenet-A"></div>
+        <div><label>Speed</label><input id="cRate" type="number" step="0.05" value="0.95" min="0.25" max="2"></div>
+        <div><label>Pitch</label><input id="cPitch" type="number" step="0.5" value="0" min="-20" max="20"></div>
+        <div><label>Stream</label><select id="cStream"><option value="1">On — types as it writes</option><option value="0">Off</option></select></div>
+        <div style="grid-column:1/-1"><label>Lorebook file (.json)</label>
+          <input type="file" id="cLoreFile" accept=".json">
+          <span class="meta" id="cLoreInfo"></span></div>
+        <div><button id="cSave" class="on">Save</button></div>
+        <div><button id="cTestVoice">Test voice</button></div>
+        <div><button id="cHide" class="sm">Hide</button></div>
+      </div>
+      <div class="note"><b>Microphone and streaming need the page served over http://localhost, not opened as a file.</b>
+      <b>Voice out:</b> Browser is free and robotic. <b>Google WaveNet</b> needs a Cloud TTS API key and a voice name such as
+      <code>en-GB-Wavenet-B</code> or <code>en-GB-Wavenet-D</code> — 1,000,000 characters free every month, renewing.
+      <b>ElevenLabs</b> needs a paid key and a voice ID.
+      <br><b>Voice in:</b> Groq Whisper records your mic and transcribes it — <b>works in every browser</b>, 8 hours a day free, key from <code>console.groq.com</code>. Click 🎤 to start, click again to stop. Browser speech, the other option, needs Chrome or Edge — Opera, Brave and Vivaldi lack the speech service key, though everything else works in them.
+      <b>Windows also needs "Online speech recognition" ON</b> under Settings &gt; Privacy &amp; security &gt; Speech.
+ Put START_ATHEL_TERRA.bat beside this file and double-click it.
+      With NodeJS installed, open a terminal in this file's folder and run: <code>npx serve</code> — then visit the address it prints.
+      <br>Settings are stored in this browser only. <b>Kobold:</b> run KoboldCpp and use its address, usually http://localhost:5001 — no key needed. <b>OpenRouter:</b> https://openrouter.ai/api/v1 and your key.</div>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden">
+      <div id="chatLog" style="height:52vh;overflow:auto;padding:11px"></div>
+      <div style="border-top:1px solid var(--line);padding:9px;display:flex;gap:6px;align-items:flex-start">
+        <textarea id="chatIn" style="flex:1;min-height:52px;font-family:inherit;font-size:14px" placeholder="What do you do?"></textarea>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <button id="cSend" class="on">Send</button>
+          <button id="cMic" class="sm" title="Browser speech — needs Chrome or Edge">🎤</button>
+          <button id="cTts" class="sm">🔊 off</button>
+        </div>
+      </div>
+    </div>
+    <div class="card hidden" id="sumPanel">
+      <div class="top" style="margin-bottom:5px">
+        <span class="nm">Session memory</span><span class="spacer"></span>
+        <button class="sm on" id="sumMake">Summarise older messages</button>
+        <button class="sm" id="sumSave">Save edits</button>
+        <button class="sm danger" id="sumClear">Clear</button>
+      </div>
+      <textarea id="sumBox" style="min-height:150px" placeholder="Nothing stored yet. This covers only messages OLDER than the 60 still sent in full, so it cannot contradict them. Edit freely — whatever is here is sent to her every turn."></textarea>
+      <div class="note" style="margin-bottom:0">Sent with every request as established history. Keep it factual: who, where, what was decided, what is owed.</div>
+    </div>
+
+    <div class="ctl">
+      <button id="cSumBtn" class="sm">Memory</button>
+      <button id="cCfgBtn" class="sm">Settings</button>
+      <button id="cClear" class="sm danger">Clear chat</button>
+      <span class="meta" id="cStatus"></span>
+    </div>
+  </div>
+
+  <div id="viewPrompt" class="hidden">
+    <div class="card">
+      <h2 style="margin-top:0">Paste this to the AI</h2>
+      <div class="note">Regenerates whenever the board changes. Enemy HP is written as a band unless revealed.</div>
+      <textarea id="promptBox" readonly></textarea>
+      <div class="ctl"><button id="copyBtn" class="on">Copy</button></div>
+    </div>
+  </div>
+
+  <h2>Log</h2>
+  <div class="log" id="log"></div>
+</div>
+
+<script>
+(function(){
+var KEY='athelterra_tracker_v2';
+var CLASS_DIE={Tank:12,Fighter:10,Ranger:10,Cleric:8,Summoner:8,Mage:6,Creature:0};
+var CONDS=['Stunned','Dazed','Prone','Exhausted','Drowsy','Asleep','Frozen','Restrained',
+  'Paralyzed','Blinded','Deafened','Silenced','Feared','Charmed','Confused','Berserk','Petrified'];
+var DOTS={Bleeding:4,Poison:6,Frostbite:6,Burning:8,Corrosion:8,Necrotic:10,Necrosis:10,Curse:12};
+var LIMB_CAP=[100,75,50,25,2];   // per Death & Dying §IV
+var RACE_MOVE={'Human':30,'Elf — Sun/Moon':30,'Elf — Wood':35,'Elf — Dark':30,'Halfling':30,
+ 'Dwarf':30,'Beastfolk':50,'Semi-Majin':55,'Dhampir':55,'Spirit / Fae':60,'Artificial Life':45,'Creature':30};
+var CLASS_MOVE={Tank:25,Cleric:20,Ranger:15,Summoner:15,Mage:10,Fighter:5,Creature:0};
+var ARMOR_PEN={Light:0,Medium:5,Heavy:10,None:0};
+var EXH=['','Weary','Exhausted','Broken'];
+var EXHFX=['','−1 to all rolls; Stamina recovery halved',
+  '−3 to all rolls; Movement reduced; no Stamina recovery without a Long Rest',
+  '−5 to all rolls; a Long Rest is required before further exertion'];
+var SEV=['','Minor','Moderate','Severe','Extreme','Catastrophic'];   // per Status Effects §III
+var CONDFX={
+ 'Stunned':'No Actions, Movement, Bonus Actions or Reactions',
+ 'Dazed':'−2 Attack Rolls, −2 relevant Skill Checks (flat, not Disadvantage)',
+ 'Prone':'Melee attacks against gain Advantage; Movement spent to stand; blocking less effective',
+ 'Exhausted':'Weary −1 all rolls · Exhausted −3 and reduced Movement · Broken −5 and a Long Rest required',
+ 'Drowsy':'−2 Initiative, −2 Perception; may progress toward Asleep',
+ 'Asleep':'Cannot normally act; may be woken by interaction or damage. HARD LOCK',
+ 'Frozen':'Movement prevented or severely restricted; no normal Dodging so attacks gain Advantage; may still act. HARD LOCK',
+ 'Restrained':'Speed 0; attacks against have Advantage; own attacks have Disadvantage; Disadvantage on DEX saves',
+ 'Paralyzed':'Cannot move or take physical actions; attacks against gain Advantage. HARD LOCK',
+ 'Blinded':'Disadvantage on Attack Rolls, −5 Perception, attacks against gain Advantage. Casting still works, aimed far worse',
+ 'Deafened':'No verbal communication or hearing-based Perception; immune to effects requiring hearing',
+ 'Silenced':'No spoken incantations. Gesture casting at ~50% power, thought/will at ~25%',
+ 'Feared':'Disadvantage against the source; may be unable to approach, may flee, may lose concentration',
+ 'Charmed':'Charmer has Advantage on social checks. Cannot be forced to self-harm or act wholly against nature',
+ 'Confused':'May attack allies, waste Actions, move unpredictably or mistarget',
+ 'Berserk':'Increased damage, increased aggression, reduced Evasion, impaired ally recognition',
+ 'Petrified':'Cannot act, move or react; immune to Bleeding and Poison; attacks against gain Advantage'
+};
+var DOTFX={
+ 'Bleeding':'Lowest per turn, longest running. Runs until treated — CON save at the end of each turn ends it',
+ 'Poison':'Middling and patient. 4 turns',
+ 'Frostbite':'Middling, and it degrades you while it runs',
+ 'Burning':'High per turn, burns out fast',
+ 'Corrosion':'Attacks durability as well as flesh',
+ 'Necrotic':'Eats the body. May permanently reduce Maximum HP; healing is less effective while it runs',
+ 'Necrosis':'Abyssal Authority only. Runs until treated — Light, holy water or amputation. No natural end',
+ 'Curse':'The widest swing in the game'
+};
+
+var state={units:[],reveal:false,combat:false,round:0,turn:0,order:[],log:[],open:{},armed:{}};
+
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}syncDb();}
+function migrate(){
+  state.open=state.open||{}; state.armed={}; state.order=state.order||[];
+  state.round=state.round||0; state.turn=state.turn||0; state.log=state.log||[];
+  state.units.forEach(function(u){
+    if(typeof u.atkBonus==='undefined') u.atkBonus=0;
+    if(typeof u.entries==='undefined') u.entries=1;
+    if(typeof u.isPC==='undefined') u.isPC=(u.side==='party'&&u.cls!=='Creature');
+    if(typeof u.eqAR==='undefined') u.eqAR=0;
+    if(typeof u.eqMD==='undefined') u.eqMD=0;
+    if(typeof u.eqEv==='undefined') u.eqEv=0;
+    if(typeof u.atkAttr==='undefined') u.atkAttr='STR';
+    if(typeof u.notes==='undefined') u.notes='';
+    if(!Array.isArray(u.cond)) u.cond=[];
+    if(!Array.isArray(u.dots)) u.dots=[];
+    u.dots.forEach(function(d){ if(!d.n) d.n=d.sev; });
+    if(typeof u.limbs==='undefined') u.limbs=0;
+    if(typeof u.hpLoss==='undefined') u.hpLoss=0;
+    if(typeof u.dsS==='undefined') u.dsS=0;
+    if(typeof u.dsF==='undefined') u.dsF=0;
+    if(typeof u.dead==='undefined') u.dead=false;
+    if(typeof u.race==='undefined') u.race='Human';
+    if(typeof u.armor==='undefined') u.armor='None';
+    if(typeof u.exh==='undefined') u.exh=0;
+  });
+}
+function load(){try{var r=localStorage.getItem(KEY);if(r){var v=JSON.parse(r);if(v&&v.units){state=v;}}}catch(e){} migrate();}
+
+var db=null,dbReady=false,tt=null;
+async function connectDb(){try{db=await claude.use('db');if(!db)return;
+  var s=await db.doc('data/party').get().catch(function(){return null;});
+  if(s&&s.state&&s.state.units&&!state.units.length){state=s.state;migrate();render();}
+  dbReady=true;}catch(e){}}
+function syncDb(){if(!dbReady||!db)return;clearTimeout(tt);
+  tt=setTimeout(function(){db.doc('data/party').set({state:state,updated:Date.now()}).catch(function(){});},500);}
+
+function baseHP(u){return 20+u.CON*8+u.level*3;}
+function maxHP(u){
+  var cap=LIMB_CAP[Math.min(4,u.limbs||0)]/100;
+  return Math.max(1, rnd(baseHP(u)*cap) - (+u.hpLoss||0));
+}
+function maxMana(u){return u.INT*8+u.WIS*6+u.level*2;}
+function maxSta(u){return 20+(u.STR+u.DEX+u.CON)*4;}
+function restDice(u){return Math.min(10,Math.floor(u.level/10));}
+function mod(v){return Math.min(5,Math.floor(v/10));}
+function rnd(x){ return Math.round(x); }          // standard: .5 and above rounds up, per Combat §287
+function rndUp(x){ return Math.ceil(x); }          // criticals only, per §331
+function movement(u){
+  var base=(RACE_MOVE[u.race]!==undefined?RACE_MOVE[u.race]:9);
+  var cm=(CLASS_MOVE[u.cls]||0);
+  var m=base+cm+mod(u.DEX)*5-(ARMOR_PEN[u.armor]||0);
+  if(u.exh>=2) m=Math.max(5,rnd(m*0.5/5)*5);
+  if(u.hp<=0) m=Math.max(5,rnd(m*0.5/5)*5);
+  if(u.cond.indexOf('Restrained')>=0||u.cond.indexOf('Petrified')>=0||u.cond.indexOf('Paralyzed')>=0||u.cond.indexOf('Stunned')>=0) m=0;
+  return Math.max(0,m);
+}
+function evasion(u){ return 10 + mod(u.DEX) + (+u.eqEv||0); }
+function targetOptions(selfId){
+  return state.units.filter(function(x){return x.id!==selfId;}).map(function(x){
+    return '<option value="'+x.id+'">'+esc(x.name)+'</option>';}).join('');
+}
+function atkTotal(u){ return Math.min(15, mod(u[u.atkAttr]) + (+u.atkBonus||0)); }
+function band(u){var p=u.hp/maxHP(u)*100;
+  if(p<=0)return 'Down';if(p<=15)return 'Critical';if(p<=40)return 'Bloodied';if(p<=75)return 'Wounded';return 'Healthy';}
+function logIt(s){
+  state.log.unshift(s); if(state.log.length>70) state.log.pop();
+  try{
+    if(typeof noteEvent!=='function') return;
+    var p=String(s).replace(/<[^>]*>/g,'');
+    if(/natural 20/i.test(p))            noteEvent('a natural 20 — '+p);
+    else if(/natural 1\b/i.test(p))      noteEvent('a natural 1 — '+p);
+    else if(/DEAD/.test(p))              noteEvent(p);
+    else if(/Death Save/i.test(p))       noteEvent(p);
+    else if(/\(Critical\)/.test(p))     noteEvent('someone is at Critical health — '+p);
+    else if(/\(Bloodied\)/.test(p))     noteEvent(p);
+    else if(/Paralyzed|Frozen|Asleep/.test(p) && /is now/.test(p)) noteEvent('a Hard Lock landed — '+p);
+    else if(/Round \d+ begins/.test(p))  noteEvent(p);
+    else if(/stabilised/i.test(p))       noteEvent(p);
+  }catch(e){}
+}
+function find(id){return state.units.filter(function(x){return x.id===id;})[0];}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+function addUnit(o){
+  var u={id:'u'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+    name:o.name||'Unnamed',side:o.side,cls:o.cls,level:+o.level||1,
+    STR:+o.STR||0,DEX:+o.DEX||0,CON:+o.CON||0,INT:+o.INT||0,WIS:+o.WIS||0,CHA:+o.CHA||0,
+    eqAR:0,eqMD:0,eqEv:0,atkAttr:'STR',atkBonus:0,entries:1,cond:[],dots:[],limbs:0,hpLoss:0,dsS:0,dsF:0,dead:false,race:'Human',armor:'None',exh:0,isPC:(o.side==='party'&&o.cls!=='Creature'),insp:0,dice:0,notes:''};
+  u.hp=maxHP(u);u.mana=maxMana(u);u.sta=maxSta(u);u.dice=restDice(u);
+  state.units.push(u);
+  logIt('<b>'+esc(u.name)+'</b> added — '+u.cls+', Level '+u.level+', '+maxHP(u)+' HP');
+  save();render();
+}
+
+function adjust(id,pool,n){
+  var u=find(id);if(!u)return;
+  var mx=pool==='hp'?maxHP(u):pool==='mana'?maxMana(u):maxSta(u);
+  var b=u[pool];u[pool]=Math.max(0,Math.min(mx,u[pool]+n));
+  var d=u[pool]-b;
+  if(d)logIt('<b>'+esc(u.name)+'</b> '+(d>0?'+':'')+d+' '+pool.toUpperCase()+' → '+u[pool]+'/'+mx+(pool==='hp'?' ('+band(u)+')':''));
+  save();render();
+}
+
+function spendDie(id,div,label,manual){
+  var u=find(id);if(!u)return;
+  if(state.combat){logIt('<b>'+esc(u.name)+'</b> cannot rest during combat');save();render();return;}
+  var die=CLASS_DIE[u.cls]||0;
+  if(!die){logIt('<b>'+esc(u.name)+'</b> is a creature — no Rest Dice');save();render();return;}
+  if(u.dice<1){logIt('<b>'+esc(u.name)+'</b> has no Rest Dice left');save();render();return;}
+  var roll=manual||(1+Math.floor(Math.random()*die));
+  if(roll<1||roll>die){logIt('A D'+die+' cannot roll '+roll);save();render();return;}
+  var pct=roll/div,gain=Math.max(1,rnd(maxHP(u)*pct/100));
+  u.dice--;u.hp=Math.min(maxHP(u),u.hp+gain);
+  logIt('<b>'+esc(u.name)+'</b> '+label+': D'+die+' = '+roll+' → '+pct.toFixed(2)+'% of '+maxHP(u)+' max = <b>+'+gain+' HP</b> → '+u.hp+'/'+maxHP(u)+' ('+band(u)+'), '+u.dice+' dice left');
+  save();render();
+}
+
+function longRest(){
+  state.units.forEach(function(u){
+    if(u.side!=='party')return;
+    u.hp=maxHP(u);u.mana=maxMana(u);u.sta=maxSta(u);u.dice=restDice(u);u.insp=0;u.cond=[];u.dots=[];u.dsS=0;u.dsF=0;
+    if(u.exh>0){u.exh--; }});  // limbs and hpLoss persist — per Death & Dying §IV and Status Effects, they need treatment, not time
+  logIt('<b>Long Rest</b> — party restored, Rest Dice refreshed, Inspiration cleared, one Exhaustion tier removed');
+  save();render();
+}
+
+function card(u){
+  var mh=maxHP(u),mm=maxMana(u),ms=maxSta(u),foe=u.side==='foe',show=!foe||state.reveal;
+  var creature=u.cls==='Creature',die=CLASS_DIE[u.cls]||0;
+  var ar=creature?u.CON:u.eqAR, md=creature?u.WIS:u.eqMD;
+  var h='<div class="card'+(foe?' foe':'')+'">';
+  h+='<div class="top"><span class="nm">'+esc(u.name)+'</span><span class="meta">'+u.cls+' · Level '+u.level+'</span><span class="spacer"></span>';
+  h+='<button class="sm" data-act="edit" data-id="'+u.id+'">'+(state.open[u.id]?'Close':'Edit')+'</button>';
+  h+='<button class="sm danger'+(state.armed[u.id]?' armed':'')+'" data-act="del" data-id="'+u.id+'">'+(state.armed[u.id]?'Confirm?':'Remove')+'</button></div>';
+
+  if(show){
+    h+=pool('hp','HP',u.hp,mh);
+    if(mm>0)h+=pool('mn','Mana',u.mana,mm);
+    h+=pool('st','Stamina',u.sta,ms);
+  }else{
+    h+='<div class="plabel"><span>Condition</span><span class="band">'+band(u)+'</span></div>';
+    h+='<div class="track"><div class="fill" style="width:'+Math.max(0,u.hp/mh*100)+'%;background:var(--hot)"></div></div>';
+  }
+
+  h+='<div class="ctl"><input type="number" id="amt_'+u.id+'" placeholder="amount" value="10">';
+  h+='<button class="sm" data-act="hp-" data-id="'+u.id+'">− HP</button>';
+  h+='<button class="sm" data-act="hp+" data-id="'+u.id+'">+ HP</button>';
+  if(mm>0){h+='<button class="sm" data-act="mana-" data-id="'+u.id+'">− Mana</button>';
+           h+='<button class="sm" data-act="mana+" data-id="'+u.id+'">+ Mana</button>';}
+  h+='<button class="sm" data-act="sta-" data-id="'+u.id+'">− Stam</button>';
+  h+='<button class="sm" data-act="sta+" data-id="'+u.id+'">+ Stam</button></div>';
+
+  if(die){
+    h+='<div class="ctl"><input type="number" id="roll_'+u.id+'" placeholder="your roll" min="1" max="'+die+'">';
+    h+='<button class="sm" data-act="brief" data-id="'+u.id+'">Brief die</button>';
+    h+='<button class="sm" data-act="short" data-id="'+u.id+'">Short die</button>';
+    if(u.isPC){ h+='<button class="sm" data-act="insp+" data-id="'+u.id+'">+ Insp</button>';
+                h+='<button class="sm" data-act="insp-" data-id="'+u.id+'">Spend</button>'; }
+    h+='</div>';
+    h+='<div class="note" style="margin:4px 2px 0">Leave the roll blank and the tracker rolls for you. Enter your own and it uses that.</div>';
+  }
+
+  h+='<div class="ctl" style="border-top:1px solid var(--line);margin-top:8px;padding-top:8px">';
+  h+='<span class="meta">Target</span><select id="tg_'+u.id+'" style="flex:1;min-width:120px"><option value="">— none —</option>'+targetOptions(u.id)+'</select>';
+  h+='</div>';
+  h+='<div class="ctl">';
+  h+='<input type="number" id="d20_'+u.id+'" placeholder="D20" min="1" max="20">';
+  h+='<button class="sm" data-act="roll" data-id="'+u.id+'">Log attack</button>';
+  if(!u.isPC) h+='<button class="sm on" data-act="autoroll" data-id="'+u.id+'">Roll attack</button>';
+  h+='</div>';
+  h+='<div class="ctl">';
+  h+='<select id="dd_'+u.id+'"><option value="4">D4</option><option value="6" selected>D6</option><option value="8">D8</option><option value="10">D10</option><option value="12">D12</option></select>';
+  h+='<input type="number" id="dr_'+u.id+'" placeholder="roll" min="1">';
+  h+='<select id="da_'+u.id+'">'+['STR','DEX','CON','INT','WIS','CHA'].map(function(a){
+       return '<option'+(u.atkAttr===a?' selected':'')+'>'+a+'</option>';}).join('')+'</select>';
+  h+='<input type="number" id="db_'+u.id+'" placeholder="+flat" value="0">';
+  h+='<label class="meta" style="display:flex;align-items:center;gap:4px"><input type="checkbox" id="cr_'+u.id+'" style="width:auto;padding:0"> crit</label>';
+  h+='<button class="sm" data-act="dmg" data-id="'+u.id+'">Damage →</button>';
+  h+='<button class="sm" data-act="heal" data-id="'+u.id+'">Heal →</button>';
+  if(!u.isPC) h+='<button class="sm on" data-act="autodmg" data-id="'+u.id+'">Roll damage</button>';
+  h+='</div>';
+  h+='<div class="note" style="margin:4px 2px 0">'+
+     (u.isPC ? 'You roll. Enter the result; the tracker converts it per Combat §311 and applies it to the target.'
+             : 'Not a player character — the tracker rolls. Enter a roll manually to override.')+
+     ' All results round down, never up.</div>';
+
+  if(u.hp<=0 && !u.dead){
+    h+='<div class="ctl" style="border-top:1px solid var(--hot);margin-top:8px;padding-top:8px">';
+    h+='<span class="band" style="color:var(--hot)">DYING</span>';
+    h+='<span class="meta">1D20 vs DC 10, no modifier</span>';
+    h+='<input type="number" id="ds_'+u.id+'" placeholder="D20" min="1" max="20">';
+    h+='<button class="sm" data-act="ds" data-id="'+u.id+'">Log save</button>';
+    if(!u.isPC) h+='<button class="sm on" data-act="dsauto" data-id="'+u.id+'">Roll save</button>';
+    h+='<button class="sm" data-act="dsstab" data-id="'+u.id+'">Stabilise</button>';
+    h+='<button class="sm" data-act="dsreset" data-id="'+u.id+'">Reset</button>';
+    h+='</div>';
+    h+='<div class="chips">';
+    h+='<span class="chip'+(u.dsS?' good':'')+'">Successes '+'●'.repeat(u.dsS)+'○'.repeat(3-u.dsS)+'</span>';
+    h+='<span class="chip'+(u.dsF?' bad':'')+'">Failures '+'●'.repeat(Math.min(3,u.dsF))+'○'.repeat(Math.max(0,3-u.dsF))+'</span>';
+    h+='</div>';
+    h+='<div class="note" style="margin:4px 2px 0">A hit while Dying is 1 automatic Failure; a critical is 2. Adventurer Inspiration stabilises outright.</div>';
+  }
+  if(u.dead) h+='<div class="note" style="color:var(--hot);margin:6px 2px"><b>DEAD</b> — three failures.</div>';
+
+  h+='<div class="ctl">';
+  h+='<select id="cs_'+u.id+'">'+CONDS.map(function(c){return '<option>'+c+'</option>';}).join('')+'</select>';
+  h+='<button class="sm" data-act="cond+" data-id="'+u.id+'">Apply</button>';
+  h+='<select id="ds_'+u.id+'">'+Object.keys(DOTS).map(function(d){return '<option>'+d+'</option>';}).join('')+'</select>';
+  h+='<select id="dv_'+u.id+'">'+[1,2,3,4,5].map(function(n){
+       return '<option value="'+n+'"'+(n===2?' selected':'')+'>'+SEV[n]+' ('+n+(n===5?'+':'')+' dice)</option>';}).join('')+'</select>';
+  h+='<input type="number" id="dx_'+u.id+'" placeholder="dice" min="1" max="12" style="width:58px" title="Override the dice count — Catastrophic is 5 or more">';
+  h+='<button class="sm" data-act="dot+" data-id="'+u.id+'">Apply</button>';
+  if(u.dots.length) h+='<button class="sm on" data-act="tick" data-id="'+u.id+'">Tick DoT</button>';
+  h+='</div>';
+  h+='<div class="note" style="margin:4px 2px 0">Severity sets the dice count — Minor 1 through Catastrophic 5+. Leave the dice box blank to use the default; set it for a Catastrophic effect above 5. <b>Catastrophic is reserved for Demon Lords, ancient creatures, Artifacts, Divine Powers and World Bosses.</b></div>';
+
+  if(u.cond.length||u.dots.length){
+    h+='<div class="chips">';
+    u.cond.forEach(function(c,i){ h+='<span class="chip bad" style="cursor:pointer" title="'+esc(CONDFX[c]||'')+'" data-act="cond-" data-id="'+u.id+'" data-i="'+i+'">'+c+' ✕</span>'; });
+    u.dots.forEach(function(d,i){ h+='<span class="chip bad" style="cursor:pointer" title="'+esc(DOTFX[d.t]||'')+'" data-act="dot-" data-id="'+u.id+'" data-i="'+i+'">'+d.t+' · '+SEV[d.sev]+' · D'+DOTS[d.t]+'×'+(d.n||d.sev)+' ✕</span>'; });
+    h+='</div>';
+    h+='<div class="note" style="margin:4px 2px 0">';
+    u.cond.forEach(function(c){ h+='<div><b>'+c+'</b> — '+esc(CONDFX[c]||'')+'</div>'; });
+    u.dots.forEach(function(d){ h+='<div><b>'+SEV[d.sev]+' '+d.t+'</b> — '+esc(DOTFX[d.t]||'')+'</div>'; });
+    h+='</div>';
+  }
+
+  h+='<div class="chips">';
+  h+='<span class="chip">'+u.atkAttr+' attack 1D20+'+atkTotal(u)+(u.atkBonus?' <span style="opacity:.7">('+mod(u[u.atkAttr])+' attr +'+u.atkBonus+')</span>':'')+'</span>';
+  h+='<span class="chip">Magic 1D20+'+mod(u.INT)+' INT · +'+mod(u.WIS)+' WIS · +'+mod(u.CHA)+' CHA</span>';
+  h+='<span class="chip">Evasion '+(10+mod(u.DEX)+(+u.eqEv||0))+'</span>';
+  h+='<span class="chip'+(movement(u)===0?' bad':'')+'" title="Racial '+(RACE_MOVE[u.race]||9)+' + Class '+(CLASS_MOVE[u.cls]||0)+' + DEX '+mod(u.DEX)+' − armour '+(ARMOR_PEN[u.armor]||0)+'">Movement '+movement(u)+' m</span>';
+  if(u.exh)h+='<span class="chip bad">'+EXH[u.exh]+'</span>';
+  h+='<span class="chip">AR '+ar+'</span><span class="chip">MD '+md+'</span>';
+  if(die)h+='<span class="chip'+(u.dice?'':' bad')+'">Rest Dice '+u.dice+'/'+restDice(u)+' · D'+die+'</span>';
+  if(u.limbs)h+='<span class="chip bad">'+u.limbs+' limb'+(u.limbs>1?'s':'')+' severed — HP cap '+LIMB_CAP[Math.min(4,u.limbs)]+'%</span>';
+  if(u.hpLoss)h+='<span class="chip bad">Max HP −'+u.hpLoss+' (Necrotic)</span>';
+  if(u.limbs||u.hpLoss)h+='<span class="chip">Base HP '+baseHP(u)+' → capped '+maxHP(u)+'</span>';
+  if(u.insp)h+='<span class="chip good">Inspiration '+u.insp+'/2</span>';
+  h+='</div>';
+
+  if(state.open[u.id]){
+    h+='<div class="edit"><div class="grid">';
+    h+='<div><label>Name</label><input data-f="name" data-id="'+u.id+'" value="'+esc(u.name)+'"></div>';
+    h+='<div><label>Level</label><input type="number" data-f="level" data-id="'+u.id+'" value="'+u.level+'"></div>';
+    ['STR','DEX','CON','INT','WIS','CHA'].forEach(function(a){
+      h+='<div><label>'+a+'</label><input type="number" data-f="'+a+'" data-id="'+u.id+'" value="'+u[a]+'"></div>';});
+    h+='<div><label>Attacks with</label><select data-f="atkAttr" data-id="'+u.id+'">'+
+       ['STR','DEX'].map(function(a){return '<option'+(u.atkAttr===a?' selected':'')+'>'+a+'</option>';}).join('')+'</select></div>';
+    if(!creature){
+      h+='<div><label>Armour Rating</label><input type="number" data-f="eqAR" data-id="'+u.id+'" value="'+u.eqAR+'"></div>';
+      h+='<div><label>Magic Defense</label><input type="number" data-f="eqMD" data-id="'+u.id+'" value="'+u.eqMD+'"></div>';
+      h+='<div><label>Evasion bonus</label><input type="number" data-f="eqEv" data-id="'+u.id+'" value="'+u.eqEv+'"></div>';
+    }
+    h+='<div><label>Attack bonus</label><input type="number" data-f="atkBonus" data-id="'+u.id+'" value="'+u.atkBonus+'"></div>';
+    h+='<div><label>Initiative entries</label><input type="number" data-f="entries" data-id="'+u.id+'" value="'+(u.entries||1)+'" min="1" max="3"></div>';
+    h+='<div><label>Race</label><select data-f="race" data-id="'+u.id+'">'+Object.keys(RACE_MOVE).map(function(r){
+       return '<option'+(u.race===r?' selected':'')+'>'+r+'</option>';}).join('')+'</select></div>';
+    h+='<div><label>Armour</label><select data-f="armor" data-id="'+u.id+'">'+['None','Light','Medium','Heavy'].map(function(r){
+       return '<option'+(u.armor===r?' selected':'')+'>'+r+'</option>';}).join('')+'</select></div>';
+    h+='<div><label>Exhaustion</label><select data-f="exh" data-id="'+u.id+'">'+[0,1,2,3].map(function(n){
+       return '<option value="'+n+'"'+(u.exh===n?' selected':'')+'>'+(n?EXH[n]:'None')+'</option>';}).join('')+'</select></div>';
+    h+='<div><label>Limbs severed</label><input type="number" data-f="limbs" data-id="'+u.id+'" value="'+(u.limbs||0)+'" min="0" max="4"></div>';
+    h+='<div><label>Max HP lost</label><input type="number" data-f="hpLoss" data-id="'+u.id+'" value="'+(u.hpLoss||0)+'" min="0"></div>';
+    h+='<div><label>Player character</label><select data-f="isPC" data-id="'+u.id+'"><option value="1"'+(u.isPC?' selected':'')+'>Yes</option><option value="0"'+(u.isPC?'':' selected')+'>No</option></select></div>';
+    h+='</div>';
+    h+='<div class="ctl" style="margin-top:8px"><input style="flex:1;width:auto" data-f="notes" data-id="'+u.id+'" placeholder="Equipment, charges, conditions — free text" value="'+esc(u.notes||'')+'">';
+    h+='<button class="sm on" data-act="apply" data-id="'+u.id+'">Apply</button>';
+    h+='<button class="sm" data-act="topup" data-id="'+u.id+'">Refill pools</button></div>';
+    h+='<div class="note" style="margin-bottom:0">Raising an attribute raises the maximums. Current values stay where they are — use <b>Refill pools</b> after a level-up.</div>';
+    h+='</div>';
+  } else if(u.notes){
+    h+='<div class="note" style="margin-bottom:0">'+esc(u.notes)+'</div>';
+  }
+  h+='</div>';
+  return h;
+}
+function pool(cls,label,cur,mx){
+  var p=mx>0?Math.max(0,cur/mx*100):0;
+  return '<div class="pool '+cls+'"><div class="plabel"><span>'+label+'</span><span>'+cur+' / '+mx+'</span></div><div class="track"><div class="fill" style="width:'+p+'%"></div></div></div>';
+}
+
+function buildPrompt(){
+  var p=state.units.filter(function(u){return u.side==='party';});
+  var f=state.units.filter(function(u){return u.side==='foe';});
+  var o='CURRENT BOARD STATE — use these numbers. Do not invent or recalculate them.\n\n';
+  if(p.length){o+='PARTY\n';
+    p.forEach(function(u){
+      o+='  '+u.name+' — '+u.cls+', Level '+u.level+'\n';
+      o+='    HP '+u.hp+'/'+maxHP(u)+'   Mana '+u.mana+'/'+maxMana(u)+'   Stamina '+u.sta+'/'+maxSta(u)+'\n';
+      o+='    Attack 1D20+'+atkTotal(u)+' ('+u.atkAttr+')   Evasion '+(10+mod(u.DEX)+(+u.eqEv||0))+'   AR '+u.eqAR+'   MD '+u.eqMD+'   Movement '+movement(u)+' ft ('+(movement(u)/5)+' squares)\n';
+      if(u.exh)o+='    Exhaustion: '+EXH[u.exh]+' — '+EXHFX[u.exh]+'\n';
+      o+='    Rest Dice '+u.dice+'/'+restDice(u)+' (D'+(CLASS_DIE[u.cls]||'-')+')   Inspiration '+u.insp+'/2\n';
+      o+='    STR '+u.STR+' DEX '+u.DEX+' CON '+u.CON+' INT '+u.INT+' WIS '+u.WIS+' CHA '+u.CHA+'\n';
+      if(u.cond.length){o+='    Conditions:\n';
+        u.cond.forEach(function(c){o+='      '+c+' — '+(CONDFX[c]||'')+'\n';});}
+      if(u.dots.length){o+='    Damage over time:\n';
+        u.dots.forEach(function(d){o+='      '+SEV[d.sev]+' '+d.t+' (D'+DOTS[d.t]+' × '+(d.n||d.sev)+' per turn) — '+(DOTFX[d.t]||'')+'\n';});}
+      if(u.dead)o+='    *** DEAD — three Death Save failures ***\n';
+      else if(u.hp<=0)o+='    *** DYING — Death Saves '+u.dsS+' successes / '+u.dsF+' failures. Rolls 1D20 vs DC 10 at the start of each turn, no modifier. A hit while Dying is an automatic failure. ***\n';
+      if(u.limbs||u.hpLoss)o+='    Injuries: '+(u.limbs?u.limbs+' limb(s) severed, HP capped at '+LIMB_CAP[Math.min(4,u.limbs)]+'%':'')+
+        (u.limbs&&u.hpLoss?'; ':'')+(u.hpLoss?'Maximum HP reduced by '+u.hpLoss:'')+
+        ' — base '+baseHP(u)+', effective maximum '+maxHP(u)+'. Cannot be healed above that.\n';
+      if(u.notes)o+='    Notes: '+u.notes+'\n';});}
+  if(f.length){o+='\nENEMIES\n';
+    f.forEach(function(u){
+      o+='  '+u.name+' — '+u.cls+', Level '+u.level+'\n';
+      if(state.reveal)o+='    HP '+u.hp+'/'+maxHP(u)+' (condition: '+band(u)+')\n';
+      else o+='    Condition: '+band(u)+' — exact HP withheld from the players\n';
+      if(u.cls==='Creature')o+='    Armour Rating '+u.CON+'   Magic Defense '+u.WIS+'   Evasion '+(10+mod(u.DEX))+'   Movement '+movement(u)+' ft ('+(movement(u)/5)+' squares)\n';
+      if(u.exh)o+='    Exhaustion: '+EXH[u.exh]+' — '+EXHFX[u.exh]+'\n';
+      if(u.cond.length){o+='    Conditions:\n';
+        u.cond.forEach(function(c){o+='      '+c+' — '+(CONDFX[c]||'')+'\n';});}
+      if(u.dots.length){o+='    Damage over time:\n';
+        u.dots.forEach(function(d){o+='      '+SEV[d.sev]+' '+d.t+' (D'+DOTS[d.t]+' × '+(d.n||d.sev)+' per turn) — '+(DOTFX[d.t]||'')+'\n';});}
+      if(u.notes)o+='    Notes: '+u.notes+'\n';});}
+  if(!p.length&&!f.length)o+='(nothing on the board)\n';
+  o+='\nCombat is '+(state.combat?'ACTIVE':'not active')+'.';
+  if(state.combat&&state.order.length){
+    o+='\n\nROUND '+state.round+' — turn order\n';
+    state.order.forEach(function(x,i){
+      var w=find(x.id); if(!w) return;
+      o+='  '+(i===state.turn?'>> ':'   ')+x.v+'  '+w.name+(x.e>1?' (entry '+x.e+')':'')+(i===state.turn?'  <-- acting now':'')+'\n';});
+  }
+  o+='\n\nHOW ROLLS WORK HERE';
+  o+='\n  Player characters roll their own dice. Everyone else is rolled by the tracker.';
+  o+='\n  The tracker reports HIT or MISS as a fact, having compared the total to Evasion.';
+  o+='\n  Damage is converted by the tracker, per the percentage-of-attribute rule.';
+  o+='\n  Do not roll dice, do not compare totals to Evasion, and do not calculate damage.';
+  o+='\n  Narrate what the log says happened. If a roll is needed, ask for it and wait.';
+  return o;
+}
+
+function render(){
+  var p=state.units.filter(function(u){return u.side==='party';});
+  var f=state.units.filter(function(u){return u.side==='foe';});
+  document.getElementById('viewRoster').innerHTML=p.length?p.map(card).join(''):'<div class="card"><div class="note" style="margin:0">No party members yet. Use <b>Add</b>.</div></div>';
+  document.getElementById('viewFoes').innerHTML=f.length?f.map(card).join(''):'<div class="card"><div class="note" style="margin:0">Nothing in the encounter.</div></div>';
+  document.getElementById('log').innerHTML=state.log.length?state.log.map(function(l){return '<div>'+l+'</div>';}).join(''):'<div>Nothing yet.</div>';
+  document.getElementById('promptBox').value=buildPrompt();
+  var rb=document.getElementById('revealBtn');
+  rb.textContent='Enemy HP: '+(state.reveal?'shown':'hidden');rb.classList.toggle('on',state.reveal);
+  var cb=document.getElementById('combatBtn');
+  cb.textContent='Combat: '+(state.combat?'ON':'off');cb.classList.toggle('on',state.combat);
+  renderInit();
+  var eb=document.getElementById('endEnc');
+  eb.textContent=state.armed.ENC?'Confirm — clear enemies?':'End encounter';
+  eb.classList.toggle('armed',!!state.armed.ENC);
+}
+
+function renderInit(){
+  var p=document.getElementById('initPanel');
+  p.classList.toggle('hidden', !state.combat);
+  if(!state.combat) return;
+  document.getElementById('roundNo').textContent = state.round || 0;
+  var L=document.getElementById('initList');
+  if(state.order.length){
+    L.innerHTML = state.order.map(function(o,i){
+      var u=find(o.id); if(!u) return '';
+      var cls='orow'+(i===state.turn?' now':'')+(u.side==='foe'?' foe':'');
+      var tag = o.e>1 ? ' <span style="opacity:.7">· entry '+o.e+'</span>' : '';
+      return '<div class="'+cls+'"><span class="ini">'+o.v+'</span><span class="who">'+esc(u.name)+tag+'</span>'+
+             '<span style="opacity:.8;font-size:12px">'+(u.side==='foe'?band(u):u.hp+'/'+maxHP(u))+'</span></div>';
+    }).join('');
+  } else {
+    L.innerHTML = state.units.map(function(u){
+      var n=u.entries||1;
+      return '<div class="irow"><input type="number" id="ini_'+u.id+'" placeholder="roll"><span>'+esc(u.name)+
+             (n>1?' <span style="opacity:.7">· '+n+' entries</span>':'')+
+             '</span><span style="opacity:.7;font-size:12px">1D20+'+mod(u.DEX)+'</span></div>';
+    }).join('') || '<div class="note" style="margin:0">Nobody on the board.</div>';
+  }
+}
+
+function amt(id){var e=document.getElementById('amt_'+id);return Math.abs(parseInt(e&&e.value,10)||0);}
+function rollOf(id){var e=document.getElementById('roll_'+id);var v=parseInt(e&&e.value,10);return v>0?v:null;}
+
+document.addEventListener('click',function(ev){
+  var b=ev.target.closest&&ev.target.closest('[data-act]');
+  if(!b)return;
+  var a=b.getAttribute('data-act'),id=b.getAttribute('data-id'),u=find(id);
+  if(!u&&a!=='apply')return;
+  if(a==='del'){
+    if(state.armed[id]){state.units=state.units.filter(function(x){return x.id!==id;});
+      delete state.armed[id];delete state.open[id];
+      logIt('<b>'+esc(u.name)+'</b> removed');}
+    else{state.armed={};state.armed[id]=1;}
+    save();render();return;}
+  state.armed={};
+  if(a==='edit'){state.open[id]=!state.open[id];save();render();return;}
+  if(a==='hp-'){adjust(id,'hp',-amt(id));return;}
+  if(a==='hp+'){adjust(id,'hp',amt(id));return;}
+  if(a==='mana-'){adjust(id,'mana',-amt(id));return;}
+  if(a==='mana+'){adjust(id,'mana',amt(id));return;}
+  if(a==='sta-'){adjust(id,'sta',-amt(id));return;}
+  if(a==='sta+'){adjust(id,'sta',amt(id));return;}
+  if(a==='short'){spendDie(id,2,'Short Rest die',rollOf(id));return;}
+  if(a==='brief'){spendDie(id,4,'Brief Rest die',rollOf(id));return;}
+  if(a==='insp+'){if(u.insp>=2)logIt('<b>'+esc(u.name)+'</b> already holds two — a third grants nothing');
+    else{u.insp++;logIt('<b>'+esc(u.name)+'</b> gains Adventurer Inspiration ('+u.insp+'/2)');}save();render();return;}
+  if(a==='insp-'){if(u.insp<1)logIt('<b>'+esc(u.name)+'</b> has no Inspiration to spend');
+    else{u.insp--;logIt('<b>'+esc(u.name)+'</b> spends Inspiration — one per encounter');}save();render();return;}
+  if(a==='dmg'||a==='autodmg'||a==='heal'){
+    var dd=parseInt(document.getElementById('dd_'+id).value,10);
+    var dr=(a==='autodmg')?(1+Math.floor(Math.random()*dd)):parseInt(document.getElementById('dr_'+id).value,10);
+    var da=document.getElementById('da_'+id).value;
+    var fb=parseInt(document.getElementById('db_'+id).value,10)||0;
+    if(!(dr>0&&dr<=dd)){logIt('A D'+dd+' cannot roll '+(dr||'nothing'));save();render();return;}
+    var crit=(document.getElementById('cr_'+id)||{}).checked;
+    var pct=dr/dd, base=crit?rndUp(pct*u[da]*1.5):rnd(pct*u[da]), tot=base+fb;
+    var heal=(a==='heal');
+    var tgId=(document.getElementById('tg_'+id)||{}).value||'';
+    var line='<b>'+esc(u.name)+'</b> '+(crit?'<b>CRITICAL</b> ':'')+(heal?'healing':'damage')+': D'+dd+' = '+dr+' → '+
+             rnd(pct*100)+'% of '+da+' '+u[da]+(crit?' × 1.5':'')+' = '+base+(fb?' + '+fb+' flat':'')+' = <b>'+tot+'</b>';
+    if(tgId){
+      var tg=find(tgId);
+      if(tg){
+        var mh=maxHP(tg), before=tg.hp, wasDying=(before<=0 && !tg.dead);
+        tg.hp=Math.max(0,Math.min(mh, tg.hp + (heal?tot:-tot)));
+        var moved=Math.abs(tg.hp-before);
+        line += ' → '+esc(tg.name)+' '+tg.hp+'/'+mh+' ('+band(tg)+')';
+        if(!heal && wasDying){
+          tg.dsF += crit?2:1;
+          line += ' <b>— hit while Dying: '+(crit?2:1)+' automatic Failure'+(crit?'s':'')+' ('+tg.dsF+'/3)</b>';
+          if(tg.dsF>=3){tg.dead=true;line+=' <b>DEAD</b>';}
+        }
+        if(heal && before<=0 && tg.hp>0){ tg.dsS=0; tg.dsF=0; line+=' <b>— no longer Dying</b>'; }
+        if(moved!==tot) line += ' <span style="opacity:.7">— '+(heal?'capped at full':'reduced to 0')+'</span>';
+      }
+    } else { line += ' <span style="opacity:.7">— no target, nothing applied</span>'; }
+    logIt(line);
+    save();render();return;}
+  if(a==='roll'||a==='autoroll'){
+    var r;
+    if(a==='autoroll'){ r=1+Math.floor(Math.random()*20); }
+    else {
+      r=parseInt(document.getElementById('d20_'+id).value,10);
+      if(!(r>=1&&r<=20)){logIt('Enter a D20 result between 1 and 20');save();render();return;}
+    }
+    var t=r+atkTotal(u);
+    var tgId=(document.getElementById('tg_'+id)||{}).value||'';
+    var line='<b>'+esc(u.name)+'</b> rolled '+r+' + '+atkTotal(u)+' = <b>'+t+'</b>';
+    if(tgId){
+      var tg=find(tgId);
+      if(tg){
+        var ev=evasion(tg);
+        var hit = r===20 ? true : (r===1 ? false : t>=ev);
+        line += ' vs '+esc(tg.name)+' Evasion '+ev+' — <b>'+(hit?'HIT':'MISS')+'</b>';
+        if(r===20) line += ' (natural 20 — automatic, and a critical)';
+        else if(r===1) line += ' (natural 1 — automatic miss)';
+      }
+    } else {
+      if(r===20) line += ' — <b>natural 20</b>, critical and Inspiration';
+      else if(r===1) line += ' — natural 1';
+    }
+    logIt(line);
+    save();render();return;}
+  if(a==='ds'||a==='dsauto'){
+    var r;
+    if(a==='dsauto'){ r=1+Math.floor(Math.random()*20); }
+    else { r=parseInt(document.getElementById('ds_'+id).value,10);
+      if(!(r>=1&&r<=20)){logIt('Enter a D20 result between 1 and 20');save();render();return;} }
+    var line='<b>'+esc(u.name)+'</b> Death Save: '+r+' — ';
+    if(r===20){
+      u.hp=1;u.dsS=0;u.dsF=0;u.cond=[];u.dots=[];
+      line+='<b>natural 20</b>. Conscious at 1 HP, and every Status Effect and DoT ends';
+    } else if(r===1){
+      u.dsF+=2; line+='<b>natural 1</b> — 2 Failures ('+u.dsF+'/3)';
+    } else if(r>=10){
+      u.dsS++; line+='success ('+u.dsS+'/3)';
+    } else {
+      u.dsF++; line+='failure ('+u.dsF+'/3)';
+    }
+    if(u.dsF>=3 && u.hp<=0){ u.dead=true; line+=' — <b>DEAD</b>'; }
+    else if(u.dsS>=3 && u.hp<=0){ u.dsS=0;u.dsF=0; line+=' — <b>stabilised</b>, still at 0 HP, no longer Dying. Movement halved until healed'; }
+    logIt(line); save(); render(); return;}
+  if(a==='dsstab'){
+    u.dsS=0;u.dsF=0;
+    logIt('<b>'+esc(u.name)+'</b> stabilised — still at 0 HP, no longer Dying. Movement halved until healed');
+    save();render();return;}
+  if(a==='dsreset'){
+    u.dsS=0;u.dsF=0;u.dead=false;
+    logIt('<b>'+esc(u.name)+'</b> — Death Save totals reset');
+    save();render();return;}
+  if(a==='cond+'){
+    var c=document.getElementById('cs_'+id).value;
+    if(c==='Exhausted'){
+      u.exh=Math.min(3,(u.exh||0)+1);
+      logIt('<b>'+esc(u.name)+'</b> — <b>'+EXH[u.exh]+'</b>: '+EXHFX[u.exh]);
+      save();render();return;}
+    if(u.cond.indexOf(c)<0){u.cond.push(c);logIt('<b>'+esc(u.name)+'</b> is now <b>'+c+'</b> — '+esc(CONDFX[c]||''));}
+    else logIt('<b>'+esc(u.name)+'</b> is already '+c+' — conditions do not stack');
+    save();render();return;}
+  if(a==='cond-'){
+    var i=+b.getAttribute('data-i');
+    var gone=u.cond.splice(i,1)[0];
+    if(gone)logIt('<b>'+esc(u.name)+'</b> is no longer '+gone);
+    save();render();return;}
+  if(a==='dot+'){
+    var dt=document.getElementById('ds_'+id).value, sv=+document.getElementById('dv_'+id).value;
+    var ov=parseInt((document.getElementById('dx_'+id)||{}).value,10);
+    var nd=(ov>0?ov:sv);
+    var ex=u.dots.filter(function(x){return x.t===dt;})[0];
+    if(ex){ if(sv>ex.sev){logIt('<b>'+esc(u.name)+'</b> '+dt+' worsens to '+SEV[sv]);ex.sev=sv;ex.n=nd;}
+            else logIt('<b>'+esc(u.name)+'</b> already has '+dt+' at equal or worse severity'); }
+    else { u.dots.push({t:dt,sev:sv,n:nd});
+      logIt('<b>'+esc(u.name)+'</b> takes <b>'+SEV[sv]+' '+dt+'</b> — D'+DOTS[dt]+' × '+nd+' per turn. '+esc(DOTFX[dt]||'')); }
+    save();render();return;}
+  if(a==='dot-'){
+    var j=+b.getAttribute('data-i');
+    var g=u.dots.splice(j,1)[0];
+    if(g)logIt('<b>'+esc(u.name)+'</b> — '+g.t+' ends');
+    save();render();return;}
+  if(a==='tick'){
+    if(!u.dots.length)return;
+    var total=0, parts=[];
+    u.dots.forEach(function(d){
+      var die=DOTS[d.t], n=d.n||d.sev, sum=0, rolls=[];
+      for(var k=0;k<n;k++){ var rr=1+Math.floor(Math.random()*die); rolls.push(rr); sum+=rnd(rr/die*u.CON); }
+      total+=sum; parts.push(d.t+' D'+die+'×'+n+' ['+rolls.join(',')+'] = '+sum);
+    });
+    var mh=maxHP(u), before=u.hp;
+    u.hp=Math.max(0,u.hp-total);
+    var hasNecrotic=u.dots.some(function(d){return d.t==='Necrotic';});
+    logIt('<b>'+esc(u.name)+'</b> DoT tick: '+parts.join(' · ')+' → <b>−'+(before-u.hp)+' HP</b> → '+u.hp+'/'+mh+' ('+band(u)+')'+
+      (hasNecrotic?' <span style="opacity:.75">— Necrotic may also reduce Maximum HP if the source states one; set it in Edit</span>':''));
+    save();render();return;}
+  if(a==='topup'){u.hp=maxHP(u);u.mana=maxMana(u);u.sta=maxSta(u);u.dice=restDice(u);
+    logIt('<b>'+esc(u.name)+'</b> pools refilled to new maximums');save();render();return;}
+  if(a==='apply'){
+    document.querySelectorAll('[data-f][data-id="'+id+'"]').forEach(function(el){
+      var f=el.getAttribute('data-f'),v=el.value;
+      if(f==='name'||f==='notes'||f==='atkAttr'||f==='race'||f==='armor')u[f]=v;
+      else if(f==='isPC')u.isPC=(v==='1');
+      else u[f]=Math.max(0,parseInt(v,10)||0);});
+    u.hp=Math.min(u.hp,maxHP(u));u.mana=Math.min(u.mana,maxMana(u));u.sta=Math.min(u.sta,maxSta(u));
+    u.dice=Math.min(u.dice,restDice(u));
+    logIt('<b>'+esc(u.name)+'</b> updated — HP max now '+maxHP(u));
+    state.open[id]=false;save();render();return;}
+});
+
+function tab(w){['Roster','Foes','Add','Chat','Prompt'].forEach(function(v){
+  document.getElementById('view'+v).classList.toggle('hidden',v!==w);
+  document.getElementById('tab'+v).classList.toggle('on',v===w);});}
+['Roster','Foes','Add','Chat','Prompt'].forEach(function(v){
+  document.getElementById('tab'+v).onclick=function(){tab(v);};});
+
+document.getElementById('aGo').onclick=function(){
+  var g=function(i){return document.getElementById(i).value;};
+  addUnit({name:g('aName').trim(),side:g('aSide'),cls:g('aClass'),level:g('aLevel'),
+    STR:g('aSTR'),DEX:g('aDEX'),CON:g('aCON'),INT:g('aINT'),WIS:g('aWIS'),CHA:g('aCHA')});
+  document.getElementById('aName').value='';
+  tab(g('aSide')==='foe'?'Foes':'Roster');};
+document.getElementById('revealBtn').onclick=function(){state.reveal=!state.reveal;save();render();};
+document.getElementById('combatBtn').onclick=function(){state.combat=!state.combat;
+  try{clearTimeout(idleTimer);}catch(e){}
+  if(!state.combat){state.order=[];state.turn=0;state.round=0;}
+  logIt(state.combat?'<b>Combat begins</b> — resting disabled':'<b>Combat ends</b>');save();render();};
+document.getElementById('long').onclick=function(){state.armed={};longRest();};
+document.getElementById('rollInit').onclick=function(){
+  var arr=[];
+  state.units.forEach(function(u){
+    var el=document.getElementById('ini_'+u.id);
+    var base=parseInt(el&&el.value,10);
+    var n=Math.max(1,Math.min(3,u.entries||1));
+    for(var i=1;i<=n;i++){
+      var v = (base>0?base:(1+Math.floor(Math.random()*20))+mod(u.DEX));
+      if(n>1 && i>1) v = (1+Math.floor(Math.random()*20))+mod(u.DEX);
+      arr.push({id:u.id,v:v,e:i});
+    }
+  });
+  if(!arr.length) return;
+  arr.sort(function(a,b){return b.v-a.v;});
+  state.order=arr; state.turn=0; state.round=1;
+  logIt('<b>Round 1</b> — order: '+arr.map(function(o){var u=find(o.id);return esc(u?u.name:'?')+' '+o.v;}).join(', '));
+  save();render();};
+document.getElementById('clearInit').onclick=function(){
+  state.order=[];state.turn=0;state.round=0;logIt('Initiative cleared');save();render();};
+document.getElementById('nextTurn').onclick=function(){
+  if(!state.order.length) return;
+  state.turn++;
+  if(state.turn>=state.order.length){state.turn=0;state.round++;
+    logIt('<b>Round '+state.round+'</b> begins');}
+  save();render();};
+document.getElementById('prevTurn').onclick=function(){
+  if(!state.order.length) return;
+  state.turn--;
+  if(state.turn<0){ state.turn=state.order.length-1; state.round=Math.max(1,state.round-1); }
+  save();render();};
+document.getElementById('endEnc').onclick=function(){
+  var n=state.units.filter(function(u){return u.side==='foe';}).length;
+  if(!n){logIt('No enemies to clear');save();render();return;}
+  if(state.armed.ENC){state.units=state.units.filter(function(u){return u.side!=='foe';});
+    state.armed={};logIt('<b>Encounter ended</b> — '+n+' enemies cleared');}
+  else{state.armed={ENC:1};}
+  save();render();};
+
+var LORE=[];
+var LORE_SRC='';
+async function loadLore(src){
+  var st=document.getElementById('cStatus');
+  try{
+    var r=await fetch(src);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    var d=await r.json();
+    if(!Array.isArray(d)||!d.length) throw new Error('file held no entries');
+    LORE=d; LORE_SRC=src;
+    try{ localStorage.setItem('athelterra_lore', JSON.stringify(d)); localStorage.setItem('athelterra_lore_src', src); }catch(e){}
+    if(st) st.textContent='lorebook loaded — '+d.length+' entries';
+    return true;
+  }catch(e){
+    if(st) st.textContent='Lorebook: '+e.message;
+    return false;
+  }
+}
+(function restoreLore(){
+  try{
+    var c=localStorage.getItem('athelterra_lore');
+    if(c){ LORE=JSON.parse(c); LORE_SRC=localStorage.getItem('athelterra_lore_src')||'cached'; }
+  }catch(e){}
+  // try the file sitting beside this page, for local use
+  setTimeout(function(){ if(!LORE.length) loadLore('athel_terra_lore.json'); }, 50);
+})();
+
+// ================= CHAT =================
+var CKEY='athelterra_chat_v1';
+var chat={msgs:[],summary:'',cfg:{backend:'kobold',url:'http://localhost:5001',key:'',model:'',max:4000,temp:0.7,stream:true,ttsMode:'browser',ttsKey:'',ttsVoice:'en-GB-Wavenet-A',qwenUrl:'http://127.0.0.1:8000',qwenApi:'/load_prompt_and_gen',qwenDesign:'',qwenPt:'',qwenPtName:'',rate:0.95,pitch:0,sttMode:'groq',sttKey:'',sttSend:0,idle:0,events:1},tts:false};
+try{var cr=localStorage.getItem(CKEY); if(cr){var cv=JSON.parse(cr); if(cv){chat=Object.assign(chat,cv);}}}catch(e){}
+function cSave(){try{localStorage.setItem(CKEY,JSON.stringify(chat));}catch(e){}}
+
+function loreFor(text){
+  var t=(text||'').toLowerCase();
+  var out=[];
+  LORE.forEach(function(L){
+    if(L.const){ out.push(L.c); return; }
+    for(var i=0;i<L.k.length;i++){ if(t.indexOf(L.k[i].toLowerCase())>=0){ out.push(L.c); return; } }
+  });
+  return out.join('\n\n---\n\n');
+}
+
+function systemPrompt(userText){
+  var recent = chat.msgs.slice(-10).map(function(m){return m.t;}).join(' ');
+  var sum = (chat.summary||'').trim();
+  var mem = sum ? '\n\n---\n\nESTABLISHED HISTORY — things already settled earlier in this campaign. Treat as fact.\nIf anything here conflicts with a recent message, the RECENT message wins.\n\n'+sum : '';
+  return loreFor(recent+' '+userText) + mem + '\n\n---\n\n' + buildPrompt();
+}
+
+function cRender(){
+  var L=document.getElementById('chatLog');
+  L.innerHTML = chat.msgs.length ? chat.msgs.map(function(m,i){
+    var cls=(m.r==='user'?'me':(m.r==='sys'?'sys':'ai'));
+    var tools = m.r==='sys' ? '' :
+      '<div class="mtools">'+
+      '<button class="sm" data-mact="edit" data-i="'+i+'">edit</button>'+
+      '<button class="sm danger" data-mact="del" data-i="'+i+'">delete</button>'+
+      '<button class="sm" data-mact="cut" data-i="'+i+'">cut from here</button></div>';
+    return '<div class="msg '+cls+'">'+esc(m.t)+tools+'</div>';
+  }).join('') : '<div class="msg sys">No messages yet. Set your backend in Settings, then describe what you do.</div>';
+  L.scrollTop=L.scrollHeight;
+  document.getElementById('cBackend').value=chat.cfg.backend;
+  document.getElementById('cUrl').value=chat.cfg.url;
+  document.getElementById('cKey').value=chat.cfg.key;
+  document.getElementById('cModel').value=chat.cfg.model;
+  document.getElementById('cMax').value=chat.cfg.max;
+  document.getElementById('cTemp').value=chat.cfg.temp;
+  document.getElementById('cStream').value=chat.cfg.stream?'1':'0';
+  document.getElementById('cTtsMode').value=chat.cfg.ttsMode||'browser';
+  document.getElementById('cTtsKey').value=chat.cfg.ttsKey||'';
+  document.getElementById('cTtsVoice').value=chat.cfg.ttsVoice||'en-GB-Wavenet-A';
+  document.getElementById('cQwenUrl').value=chat.cfg.qwenUrl||'http://127.0.0.1:8000';
+  document.getElementById('cQwenApi').value=chat.cfg.qwenApi||'/run_voice_design';
+  document.getElementById('cQwenDesign').value=chat.cfg.qwenDesign||'';
+  var li=document.getElementById('cLoreInfo');
+  if(li) li.textContent = LORE.length ? (LORE.length+' entries loaded ('+LORE_SRC+')') : 'NO LOREBOOK — pick the .json';
+  var pi=document.getElementById('cPtInfo');
+  if(pi) pi.textContent = chat.cfg.qwenPtName
+    ? ('stored: '+chat.cfg.qwenPtName+' — survives restarts')
+    : 'none chosen';
+  document.getElementById('cRate').value=chat.cfg.rate||0.95;
+  document.getElementById('cSttMode').value=chat.cfg.sttMode||'groq';
+  document.getElementById('cSttKey').value=chat.cfg.sttKey||'';
+  document.getElementById('cSttSend').value=String(chat.cfg.sttSend||0);
+  document.getElementById('cIdle').value=String(chat.cfg.idle||0);
+  document.getElementById('cEvents').value=String(chat.cfg.events===0?0:1);
+  document.getElementById('cPitch').value=(chat.cfg.pitch===undefined?0:chat.cfg.pitch);
+  document.getElementById('cTts').classList.toggle('on',chat.tts);
+}
+
+var audioEl=null, speakToken=0, qwenPtPath=null;
+
+async function uploadQwenPt(base){
+  if(!chat.cfg.qwenPt) throw new Error('No saved voice file chosen. Pick your .pt in Settings.');
+  var res=await fetch(chat.cfg.qwenPt);
+  var blob=await res.blob();
+  var fd=new FormData();
+  fd.append('files', blob, chat.cfg.qwenPtName||'voice.pt');
+  var r=await fetch(base+'/gradio_api/upload',{method:'POST',body:fd});
+  var txt=await r.text();
+  var arr; try{ arr=JSON.parse(txt); }catch(e){ throw new Error('Upload failed: '+txt.slice(0,160)); }
+  if(!Array.isArray(arr)||!arr.length) throw new Error('Upload returned nothing: '+txt.slice(0,160));
+  logIt('[voice] voice file uploaded to Qwen');
+  return arr[0];
+}
+function stopSpeech(){
+  speakToken++;                              // invalidates anything in flight
+  if(audioEl){ try{ audioEl.pause(); audioEl.src=''; }catch(e){} audioEl=null; }
+  if(window.speechSynthesis){ try{ speechSynthesis.cancel(); }catch(e){} }
+}
+async function speak(t){
+  var myToken=++speakToken;                  // this call's claim on the speaker
+  function stale(){ return myToken!==speakToken; }
+  if(!chat.tts||!t) return;
+  var mode=chat.cfg.ttsMode||'browser';
+  // tables are for the eye, not the ear — lift them out and say so once
+  var src=String(t);
+  var tableCount=0;
+  src=src.replace(/(^\|.*\|\s*$\n?){2,}/gm, function(){ tableCount++; return '\n[[TABLE]]\n'; });
+  var tableLine = tableCount===1 ? 'The table is on your screen. '
+                : tableCount>1   ? 'The tables are on your screen. ' : '';
+  src=src.replace(/\[\[TABLE\]\]/g, '');
+  // stat blocks read terribly aloud — lift dense label:value runs out like tables
+  var blockCount=0;
+  src=src.replace(/(^[ \t]*[-*•]?[ \t]*[A-Z][A-Za-z ]{1,24}:[^\n]*$\n?){3,}/gm, function(){ blockCount++; return '\n[[BLOCK]]\n'; });
+  src=src.replace(/\[\[BLOCK\]\]/g,'');
+
+  var clean=src
+    .replace(/^[ \t]*[-*•][ \t]+/gm,'')          // bullet markers
+    .replace(/^[ \t]*\d+[.)][ \t]+/gm,'')        // numbered list markers
+    .replace(/^#{1,6}[ \t]*/gm,'')                // headings
+    .replace(/[*_`>]/g,'')                        // leftover markdown
+    .replace(/\s·\s/g,', ')                      // middots read as nothing
+    .replace(/^[-–—\s|]+$/gm,'')
+    .replace(/\n{3,}/g,'\n\n')
+    .replace(/[ \t]+/g,' ')
+    .trim();
+
+  var extra='';
+  if(tableLine) extra+=' '+tableLine;
+  if(blockCount===1) extra+=' The details are on your screen.';
+  else if(blockCount>1) extra+=' The details are on your screen.';
+  if(extra) clean=clean+extra;
+  clean=clean.slice(0,4500);
+  if(!clean) return;
+  if(audioEl){ try{ audioEl.pause(); audioEl.src=''; }catch(e){} audioEl=null; }
+  if(window.speechSynthesis){ try{ speechSynthesis.cancel(); }catch(e){} }
+
+  if(mode!=='qwen' && (mode==='browser'||!chat.cfg.ttsKey)){
+    if(!window.speechSynthesis) return;
+    try{ speechSynthesis.cancel();
+      var u=new SpeechSynthesisUtterance(clean.slice(0,1200)); u.rate=(+chat.cfg.rate||0.95); speechSynthesis.speak(u);
+    }catch(e){}
+    return;
+  }
+
+  var st=document.getElementById('cStatus');
+  try{
+    var b64=null;
+    if(mode==='qwen'){
+      var base=(chat.cfg.qwenUrl||'http://127.0.0.1:8000').replace(/\/$/,'');
+      var api=(chat.cfg.qwenApi||'/run_voice_design').replace(/^\//,'');
+      // run_voice_design needs all three params; an empty design string errors server-side
+      var dsc=(chat.cfg.qwenDesign||'').trim();
+      var payload, usedPt=false;
+      if(api.indexOf('design')>=0){
+        if(!dsc) throw new Error('VoiceDesign needs a voice description. Fill it in Settings and press Save.');
+        payload={data:[clean,'Auto',dsc]};
+      } else if(api.indexOf('load_prompt')>=0){
+        if(!qwenPtPath) qwenPtPath=await uploadQwenPt(base);
+        usedPt=true;
+        payload={data:[{path:qwenPtPath,meta:{_type:'gradio.FileData'}},clean,'Auto']};
+      } else {
+        payload={data:[clean,'Auto']};
+      }
+      async function fire(pl){
+        var r=await fetch(base+'/gradio_api/call/'+api,{
+          method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pl)});
+        return await r.text();
+      }
+      var pt=await fire(payload);
+      var ev; try{ ev=JSON.parse(pt); }catch(e){ ev=null; }
+      if((!ev||!ev.event_id) && usedPt){
+        // Qwen probably restarted and lost the upload — send it again
+        logIt('[voice] re-uploading voice file');
+        qwenPtPath=await uploadQwenPt(base);
+        payload={data:[{path:qwenPtPath,meta:{_type:'gradio.FileData'}},clean,'Auto']};
+        pt=await fire(payload);
+        try{ ev=JSON.parse(pt); }catch(e){ ev=null; }
+      }
+      if(!ev||!ev.event_id) throw new Error('Qwen returned no event_id: '+pt.slice(0,200));
+      var p2=await fetch(base+'/gradio_api/call/'+api+'/'+ev.event_id);
+      var sse=await p2.text();
+      var url=null;
+      sse.split('\n').forEach(function(ln){
+        ln=ln.trim();
+        if(ln.indexOf('data:')!==0) return;
+        try{
+          var arr=JSON.parse(ln.slice(5).trim());
+          (function dig(x){
+            if(!x) return;
+            if(typeof x==='string' && /\.(wav|mp3|flac|ogg)$/i.test(x)) url=x;
+            else if(Array.isArray(x)) x.forEach(dig);
+            else if(typeof x==='object'){ if(x.url) url=x.url; else if(x.path) url=x.path; else Object.keys(x).forEach(function(k){dig(x[k]);}); }
+          })(arr);
+        }catch(e){}
+      });
+      if(stale()) return;                    // a newer line took over while we waited
+      if(!url) throw new Error('Qwen produced no audio. Raw tail: '+sse.slice(-260));
+      if(url.indexOf('http')!==0) url=base+'/gradio_api/file='+url.replace(/^\//,'');
+      logIt('[voice] Qwen audio URL: '+esc(url));
+      if(audioEl){ try{audioEl.pause();}catch(e){} }
+      audioEl=new Audio(url);
+      audioEl.onerror=function(){
+        var m='Qwen audio would not load: '+url+' — the file may have expired or the path is wrong.';
+        st.textContent=m; logIt('[voice] '+esc(m));
+        try{ var uf=new SpeechSynthesisUtterance(clean.slice(0,1200)); uf.rate=(+chat.cfg.rate||0.95); speechSynthesis.speak(uf); }catch(e){}
+      };
+      await audioEl.play().catch(function(err){
+        st.textContent='Audio could not play: '+err.name;
+        logIt('[voice] play failed: '+esc(err.name+' — '+err.message));
+        try{ var uf2=new SpeechSynthesisUtterance(clean.slice(0,1200)); speechSynthesis.speak(uf2); }catch(e){}
+      });
+      return;
+    }
+    if(mode==='google'){
+      var vn=chat.cfg.ttsVoice||'en-GB-Wavenet-A';
+      var lang=vn.split('-').slice(0,2).join('-');
+      var ssml = clean
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/\n\s*\n/g,'<break time="900ms"/>')
+        .replace(/\n/g,'<break time="500ms"/> ')
+        .replace(/([.!?])\s+/g,'$1<break time="420ms"/> ')
+        .replace(/([,;:])\s+/g,'$1<break time="180ms"/> ')
+        .replace(/\s—\s/g,'<break time="260ms"/> — ')
+        .replace(/(<break[^>]*\/>\s*){2,}/g,'<break time="700ms"/> ');
+      ssml='<speak>'+ssml+'</speak>';
+      var r=await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='+encodeURIComponent(chat.cfg.ttsKey),{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({input:{ssml:ssml},
+          voice:{languageCode:lang,name:vn},
+          audioConfig:{audioEncoding:'MP3',speakingRate:(+chat.cfg.rate||0.95),pitch:(+chat.cfg.pitch||0)}})});
+      var j=await r.json();
+      if(j.error) throw new Error(j.error.message||'Google TTS error');
+      b64=j.audioContent;
+    } else {
+      var vid=chat.cfg.ttsVoice||'21m00Tcm4TlvDq8ikWAM';
+      var r2=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+encodeURIComponent(vid),{
+        method:'POST',headers:{'Content-Type':'application/json','xi-api-key':chat.cfg.ttsKey},
+        body:JSON.stringify({text:clean,model_id:'eleven_multilingual_v2',
+          voice_settings:{stability:0.45,similarity_boost:0.8}})});
+      if(!r2.ok){ var et=await r2.text(); throw new Error('ElevenLabs '+r2.status+': '+et.slice(0,180)); }
+      var buf=await r2.arrayBuffer();
+      var bytes=new Uint8Array(buf), bin='';
+      for(var i=0;i<bytes.length;i++) bin+=String.fromCharCode(bytes[i]);
+      b64=btoa(bin);
+    }
+    if(stale()) return;
+    if(!b64) throw new Error('No audio returned');
+    audioEl=new Audio('data:audio/mp3;base64,'+b64);
+    audioEl.play().catch(function(e){ st.textContent='Audio blocked — click the page once, then retry.'; });
+  }catch(e){
+    if(stale()) return;
+    st.textContent='Voice: '+e.message;
+    try{ logIt('[voice] '+esc(e.message)); }catch(e3){}
+    try{ var u2=new SpeechSynthesisUtterance(clean.slice(0,1200)); speechSynthesis.speak(u2); }catch(e2){}
+  }
+}
+
+var activeReader=null, aborting=false;
+function yieldFloor(){
+  try{ stopSpeech(); }catch(e){}
+  if(activeReader){
+    aborting=true;
+    try{ activeReader.cancel(); }catch(e){}
+    activeReader=null;
+    var st=document.getElementById('cStatus');
+    if(st) st.textContent='';
+  }
+}
+
+async function send(){
+  var box=document.getElementById('chatIn');
+  var txt=box.value.trim(); if(!txt) return;
+  box.value='';
+  chat.msgs.push({r:'user',t:txt}); cSave(); cRender();
+  var st=document.getElementById('cStatus'); st.textContent='thinking…';
+
+  var sys=systemPrompt(txt);
+  var hist=chat.msgs.filter(function(m){return m.r!=='sys';}).slice(-60);
+  // placeholder the stream writes into
+  chat.msgs.push({r:'ai',t:''}); cRender();
+  var slot=chat.msgs.length-1;
+  function push(frag){
+    if(!frag) return;
+    chat.msgs[slot].t+=frag;
+    var L=document.getElementById('chatLog');
+    var atBottom = L.scrollHeight-L.scrollTop-L.clientHeight < 60;
+    cRender();
+    if(atBottom) L.scrollTop=L.scrollHeight;
+  }
+
+  try{
+    var reply;
+    if(chat.cfg.backend==='kobold'){
+      var p=sys+'\n\n'+hist.map(function(m){return (m.r==='user'?'Player: ':'GM: ')+m.t;}).join('\n')+'\nGM:';
+      var r=await fetch(chat.cfg.url.replace(/\/$/,'')+'/api/v1/generate',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({prompt:p,max_length:+chat.cfg.max,temperature:+chat.cfg.temp,
+          stop_sequence:['Player:','\nPlayer']})});
+      var j=await r.json();
+      reply=(j.results&&j.results[0]&&j.results[0].text||'').trim();
+      if(reply){ chat.msgs[slot].t=reply; }
+    } else {
+      var base=chat.cfg.url.replace(/\/$/,'');
+      var cleanKey=(chat.cfg.key||'').replace(/[\s\u200B-\u200D\uFEFF]/g,'');
+      if(!cleanKey){ throw new Error('No API key entered. Paste it in Settings and press Save.'); }
+      var hdrs={'Content-Type':'application/json','Authorization':'Bearer '+cleanKey};
+      if(base.indexOf('openrouter')>=0){
+        hdrs['HTTP-Referer']='https://localhost/athel-terra';
+        hdrs['X-Title']='Athel-Terra Tracker';
+      }
+      var useStream = !!chat.cfg.stream;
+      var r2=await fetch(base+'/chat/completions',{
+        method:'POST',
+        headers:hdrs,
+        body:JSON.stringify({model:chat.cfg.model,max_tokens:+chat.cfg.max,temperature:+chat.cfg.temp,stream:useStream,
+          messages:[{role:'system',content:sys}].concat(hist.map(function(m){
+            return {role:m.r==='user'?'user':'assistant',content:m.t};}))})});
+      if(useStream && r2.body && r2.ok){
+        var rd=r2.body.getReader(); activeReader=rd; aborting=false;
+        var dec=new TextDecoder(), buf='', got='';
+        while(true){
+          if(aborting) break;
+          var ck;
+          try{ ck=await rd.read(); }catch(e){ break; }
+          if(ck.done) break;
+          buf+=dec.decode(ck.value,{stream:true});
+          var lines=buf.split('\n'); buf=lines.pop();
+          for(var li=0; li<lines.length; li++){
+            var ln=lines[li].trim();
+            if(!ln || ln.indexOf('data:')!==0) continue;
+            var payload=ln.slice(5).trim();
+            if(payload==='[DONE]') continue;
+            try{
+              var ev=JSON.parse(payload);
+              var dl=(ev.choices&&ev.choices[0]&&ev.choices[0].delta)||{};
+              if(dl.content){ got+=dl.content; push(dl.content); }
+            }catch(se){}
+          }
+        }
+        activeReader=null;
+        if(aborting){
+          if(!chat.msgs[slot].t.trim()) chat.msgs.splice(slot,1);
+          else chat.msgs[slot].t+=' —';
+          aborting=false; st.textContent=''; cSave(); cRender(); return;
+        }
+        if(!got.trim()){
+          chat.msgs.splice(slot,1);
+          throw new Error('The stream returned no text. The model may have spent its budget on internal reasoning — raise Max tokens, or untick Stream.');
+        }
+        reply=got.trim(); speak(reply);
+        st.textContent=''; cSave(); cRender(); return;
+      }
+      var raw=await r2.text();
+      var j2;
+      try{ j2=JSON.parse(raw); }catch(pe){ throw new Error('HTTP '+r2.status+' — non-JSON reply: '+raw.slice(0,300)); }
+      if(j2.error){
+        var em=j2.error.message||'';
+        var meta=j2.error.metadata?(' | provider said: '+JSON.stringify(j2.error.metadata).slice(0,400)):'';
+        var code=j2.error.code?(' [code '+j2.error.code+']'):'';
+        throw new Error(em+code+meta+' | HTTP '+r2.status);
+      }
+      if(!r2.ok){ throw new Error('HTTP '+r2.status+' — '+raw.slice(0,300)); }
+      var ch=(j2.choices&&j2.choices[0])||{};
+      var msg=ch.message||{};
+      reply=(msg.content||'').trim();
+      if(!reply && ch.text) reply=String(ch.text).trim();
+      if(!reply && (msg.reasoning||msg.reasoning_content)){
+        throw new Error('The model spent its whole output budget on internal reasoning and produced no answer. Raise Max tokens (try 4000) — this model allows up to 236,000.');
+      }
+      if(!reply){
+        var why=ch.finish_reason||ch.native_finish_reason||'unknown';
+        var used=(j2.usage&&j2.usage.completion_tokens)||0;
+        throw new Error('Empty reply. finish_reason='+why+', completion_tokens='+used+
+          (why==='length'?'  >> It ran out of output budget. Raise Max tokens — this model allows a great deal.':
+           '  >> The model produced no text. Try raising Max tokens, or a different model.'));
+      }
+    }
+    if(!reply) reply='(the model returned nothing)';
+    chat.msgs[slot].t=reply; speak(reply);
+  }catch(e){
+    if(chat.msgs[slot] && chat.msgs[slot].r==='ai' && !chat.msgs[slot].t) chat.msgs.splice(slot,1);
+    var hint='';
+    var mm=(e.message||'').toLowerCase();
+    if(mm.indexOf('user not found')>=0||mm.indexOf('401')>=0||mm.indexOf('no auth')>=0)
+      hint='\n>> The API key was rejected. It must be the FULL key — the site masks it after creation. Make a new one at openrouter.ai/settings/keys and use the copy button.';
+    else if(mm.indexOf('provider returned error')>=0||mm.indexOf('data policy')>=0||mm.indexOf('no endpoints')>=0||mm.indexOf('no allowed providers')>=0)
+      hint='\n>> The provider refused. Usually the privacy setting: go to openrouter.ai/settings/privacy and allow free endpoints that may train on inputs. Otherwise the model is down or rate-limited — try another :free model.';
+    else if(mm.indexOf('429')>=0||mm.indexOf('rate')>=0)
+      hint='\n>> Rate limited. Free tiers allow only a few requests a minute. Wait and retry.';
+    else if(mm.indexOf('402')>=0||mm.indexOf('credit')>=0)
+      hint='\n>> Out of credit, or the model is not free. Use a model name ending in :free.';
+    else if(mm.indexOf('not a valid model')>=0||mm.indexOf('model')>=0&&mm.indexOf('404')>=0)
+      hint='\n>> Model name wrong. Copy it exactly from the model page on openrouter.ai/models.';
+    else if(mm.indexOf('failed to fetch')>=0)
+      hint='\n>> Could not reach the server. If local, is KoboldCpp running? If cloud, check the URL ends in /v1.';
+    chat.msgs.push({r:'sys',t:'Error: '+e.message+hint});
+  }
+  st.textContent=''; cSave(); cRender();
+  try{ resetIdle(); }catch(e){}
+}
+
+var idleTimer=null, idleCount=0, eventQueue=[], eventTimer=null, busy=false;
+function resetIdle(){
+  idleCount=0; clearTimeout(idleTimer);
+  var secs=+chat.cfg.idle||0;
+  if(!secs || state.combat) return;
+  idleTimer=setTimeout(onIdle, secs*1000);
+}
+function onIdle(){
+  if(busy||state.combat||!chat.msgs.length||idleCount>=2) return;
+  idleCount++;
+  nudge('The player has gone quiet. Fill the silence with TWO OR THREE LINES ONLY: atmosphere, an NPC shifting or growing impatient, or you prodding them. Advance NOTHING. Answer nothing on their behalf. Resolve nothing. Then stop.');
+  var secs=+chat.cfg.idle||0;
+  if(secs) idleTimer=setTimeout(onIdle, secs*2000);
+}
+function noteEvent(txt){
+  if(!chat.cfg.events||!chat.msgs.length) return;
+  eventQueue.push(txt); clearTimeout(eventTimer);
+  eventTimer=setTimeout(flushEvents, 2500);
+}
+function flushEvents(){
+  if(busy||!eventQueue.length) return;
+  var list=eventQueue.slice(0,6).join('; '); eventQueue=[];
+  nudge('This just happened on the board: '+list+'. React in ONE OR TWO LINES as yourself. Do not narrate a scene, do not act for anyone, do not change any number. Just react, then stop.');
+}
+async function nudge(instruction){
+  if(busy) return;
+  var box=document.getElementById('chatIn');
+  if(box && box.value.trim()) return;
+  busy=true;
+  var saveMax=chat.cfg.max; chat.cfg.max=200;
+  try{
+    chat.msgs.push({r:'user',t:'[[GM_NUDGE]] '+instruction});
+    await send();
+  } finally {
+    for(var i=chat.msgs.length-1;i>=0;i--){
+      if(chat.msgs[i].r==='user' && chat.msgs[i].t.indexOf('[[GM_NUDGE]]')===0){ chat.msgs.splice(i,1); break; }
+    }
+    chat.cfg.max=saveMax; busy=false; cSave(); cRender();
+  }
+}
+
+function sumRender(){
+  var b=document.getElementById('sumBox');
+  if(b && document.activeElement!==b) b.value=chat.summary||'';
+}
+document.getElementById('cSumBtn').onclick=function(){
+  document.getElementById('sumPanel').classList.toggle('hidden'); sumRender();
+};
+document.getElementById('sumSave').onclick=function(){
+  chat.summary=document.getElementById('sumBox').value.trim(); cSave();
+  document.getElementById('cStatus').textContent='memory saved';
+  setTimeout(function(){document.getElementById('cStatus').textContent='';},1200);
+};
+document.getElementById('sumClear').onclick=function(){
+  chat.summary=''; document.getElementById('sumBox').value=''; cSave();
+};
+document.getElementById('sumMake').onclick=async function(){
+  var st=document.getElementById('cStatus');
+  var all=chat.msgs.filter(function(m){return m.r!=='sys';});
+  var older=all.slice(0,Math.max(0,all.length-60));
+  if(!older.length){ st.textContent='Nothing has fallen out of the window yet — all '+all.length+' messages are still sent in full.'; return; }
+  st.textContent='summarising '+older.length+' older messages...';
+  var text=older.map(function(m){return (m.r==='user'?'PLAYER: ':'GM: ')+m.t;}).join('\n');
+  var instruction='Summarise the campaign so far from the transcript below. Write only settled FACTS a GM must '+
+    'remember: the characters and their statistics, where they are, what they decided, who they met, what they '+
+    'were told, what they owe, and anything unresolved. Plain statements, no narration, no speculation, no '+
+    'commentary. Do not invent. If something was changed later, record only the final state.\n\nTRANSCRIPT:\n'+text.slice(0,60000);
+  try{
+    var base=chat.cfg.url.replace(/\/$/,'');
+    var r=await fetch(base+'/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+chat.cfg.key},
+      body:JSON.stringify({model:chat.cfg.model,max_tokens:1200,temperature:0.2,
+        messages:[{role:'user',content:instruction}]})});
+    var j=await r.json();
+    if(j.error) throw new Error(j.error.message||'error');
+    var txt=(j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content||'').trim();
+    if(!txt) throw new Error('empty summary');
+    chat.summary=(chat.summary?chat.summary+'\n\n':'')+txt;
+    document.getElementById('sumBox').value=chat.summary;
+    cSave(); st.textContent='memory written — check it and edit anything wrong';
+  }catch(e){ st.textContent='Summary failed: '+e.message; }
+};
+
+document.addEventListener('click',function(ev){
+  var b=ev.target.closest && ev.target.closest('button[data-mact]');
+  if(!b) return;
+  var act=b.getAttribute('data-mact'), i=+b.getAttribute('data-i');
+  if(!chat.msgs[i]) return;
+  if(act==='del'){ chat.msgs.splice(i,1); cSave(); cRender(); return; }
+  if(act==='cut'){
+    var n=chat.msgs.length-i;
+    if(b.textContent==='cut from here'){ b.textContent='remove '+n+'?'; setTimeout(function(){ if(b) b.textContent='cut from here'; },3000); return; }
+    chat.msgs.splice(i); cSave(); cRender(); return;
+  }
+  if(act==='edit'){
+    var box=document.getElementById('chatIn');
+    var cur=chat.msgs[i].t;
+    var ta=document.createElement('textarea');
+    ta.value=cur; ta.style.cssText='width:100%;min-height:90px;margin-top:6px';
+    var par=b.parentElement.parentElement;
+    var holder=document.createElement('div');
+    var ok=document.createElement('button'); ok.className='sm on'; ok.textContent='save';
+    var no=document.createElement('button'); no.className='sm'; no.textContent='cancel';
+    holder.appendChild(ta); holder.appendChild(ok); holder.appendChild(no);
+    par.appendChild(holder);
+    ok.onclick=function(){ chat.msgs[i].t=ta.value; cSave(); cRender(); };
+    no.onclick=function(){ cRender(); };
+    ta.focus();
+    return;
+  }
+});
+
+document.getElementById('cSend').onclick=send;
+
+document.getElementById('chatIn').addEventListener('input',function(){ yieldFloor(); resetIdle(); });
+document.getElementById('chatIn').addEventListener('keydown',function(e){
+  if(e.key.length===1||e.key==='Backspace') yieldFloor();
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
+document.getElementById('cSave').onclick=function(){
+  chat.cfg={backend:document.getElementById('cBackend').value,
+    url:document.getElementById('cUrl').value.trim(),
+    key:document.getElementById('cKey').value.replace(/[\s\u200B-\u200D\uFEFF]/g,''),
+    model:document.getElementById('cModel').value.trim(),
+    _dummy:0,
+    max:+document.getElementById('cMax').value||4000,
+    temp:+document.getElementById('cTemp').value||0.9,
+    stream:document.getElementById('cStream').value==='1',
+    ttsMode:document.getElementById('cTtsMode').value,
+    ttsKey:document.getElementById('cTtsKey').value.replace(/[\s\u200B-\u200D\uFEFF]/g,''),
+    ttsVoice:document.getElementById('cTtsVoice').value.trim(),
+    qwenUrl:document.getElementById('cQwenUrl').value.trim().replace(/\/$/,''),
+    qwenApi:document.getElementById('cQwenApi').value.trim(),
+    qwenDesign:document.getElementById('cQwenDesign').value.trim(),
+    rate:+document.getElementById('cRate').value||0.95,
+    sttMode:document.getElementById('cSttMode').value,
+    sttKey:document.getElementById('cSttKey').value.replace(/[\s\u200B-\u200D\uFEFF]/g,''),
+    sttSend:+document.getElementById('cSttSend').value||0,
+    idle:+document.getElementById('cIdle').value||0,
+    events:+document.getElementById('cEvents').value,
+    pitch:+document.getElementById('cPitch').value||0};
+  cSave();cRender();
+  var kl=chat.cfg.key.length;
+  document.getElementById('cStatus').textContent='saved'+(kl?' — key is '+kl+' characters':' — no key');
+  setTimeout(function(){document.getElementById('cStatus').textContent='';},1200);};
+document.getElementById('cTestVoice').onclick=async function(){
+  var was=chat.tts; chat.tts=true;
+  var st=document.getElementById('cStatus');
+  st.textContent='testing voice...';
+  try{ await speak('Oh, you want to play? Right. Come closer, I do not bite. Much.'); }
+  finally{
+    chat.tts=was;
+    if(st.textContent==='testing voice...') st.textContent='';
+  }
+};
+document.getElementById('cQwenPt').onchange=function(){
+  var fl=this.files&&this.files[0]; if(!fl) return;
+  var st=document.getElementById('cStatus');
+  if(fl.size>4*1024*1024){ st.textContent='That file is very large for browser storage.'; return; }
+  var rd=new FileReader();
+  rd.onload=function(){
+    chat.cfg.qwenPt=rd.result;            // data: URL, stored locally
+    chat.cfg.qwenPtName=fl.name;
+    qwenPtPath=null;                       // force a fresh upload
+    cSave(); cRender();
+    st.textContent='voice file stored — '+fl.name;
+    setTimeout(function(){ if(st.textContent.indexOf('voice file stored')===0) st.textContent=''; },2500);
+  };
+  rd.readAsDataURL(fl);
+};
+document.getElementById('cLoreFile').onchange=function(){
+  var fl=this.files&&this.files[0]; if(!fl) return;
+  var rd=new FileReader();
+  rd.onload=function(){
+    try{
+      var d=JSON.parse(rd.result);
+      if(!Array.isArray(d)||!d.length) throw new Error('no entries');
+      LORE=d; LORE_SRC=fl.name;
+      localStorage.setItem('athelterra_lore', rd.result);
+      localStorage.setItem('athelterra_lore_src', fl.name);
+      cRender();
+      document.getElementById('cStatus').textContent='lorebook loaded — '+d.length+' entries, stored for next time';
+    }catch(e){ document.getElementById('cStatus').textContent='Lorebook: '+e.message; }
+  };
+  rd.readAsText(fl);
+};
+document.getElementById('cHide').onclick=function(){document.getElementById('chatCfg').classList.add('hidden');};
+document.getElementById('cCfgBtn').onclick=function(){document.getElementById('chatCfg').classList.toggle('hidden');};
+document.getElementById('cClear').onclick=function(){try{stopSpeech();}catch(e){} chat.msgs=[];cSave();cRender();};
+document.getElementById('cTts').onclick=function(){chat.tts=!chat.tts;if(!chat.tts){try{stopSpeech();}catch(e){}}cSave();cRender();};
+
+var rec=null;
+var mediaRec=null, mediaChunks=[], mediaStream=null;
+
+async function transcribe(blob){
+  var st=document.getElementById('cStatus');
+  var key=chat.cfg.sttKey;
+  if(!key){ st.textContent='No Groq key. Settings > Groq key, then Save.'; return; }
+  st.textContent='transcribing...';
+  try{
+    var fd=new FormData();
+    fd.append('file', blob, 'speech.webm');
+    fd.append('model','whisper-large-v3-turbo');
+    fd.append('response_format','json');
+    fd.append('language','en');
+    var r=await fetch('https://api.groq.com/openai/v1/audio/transcriptions',{
+      method:'POST', headers:{'Authorization':'Bearer '+key}, body:fd});
+    var txt=await r.text();
+    var j; try{ j=JSON.parse(txt); }catch(e){ throw new Error('HTTP '+r.status+': '+txt.slice(0,160)); }
+    if(j.error) throw new Error(j.error.message||JSON.stringify(j.error));
+    var out=(j.text||'').trim();
+    if(!out){ st.textContent='Nothing was heard.'; return; }
+    var box=document.getElementById('chatIn');
+    box.value=(box.value?box.value+' ':'')+out;
+    st.textContent='';
+    if(chat.cfg.sttSend) send();
+  }catch(e){
+    var lm=(e.message||'').toLowerCase(), h='';
+    if(lm.indexOf('401')>=0||lm.indexOf('invalid api key')>=0) h='  >> Key rejected. It should start gsk_ — make a new one at console.groq.com.';
+    else if(lm.indexOf('429')>=0) h='  >> Rate limited. Free tier allows 20 requests a minute. Wait a moment.';
+    else if(lm.indexOf('failed to fetch')>=0) h='  >> Could not reach Groq. Check you are online.';
+    st.textContent='Transcription: '+e.message+h;
+  }
+}
+
+document.getElementById('cMic').onclick=async function(){
+  var st=document.getElementById('cStatus'), btn=this;
+  if(location.protocol==='file:'){ st.textContent='Serve the page first — run START_ATHEL_TERRA.bat and use http://localhost:3000.'; return; }
+  if(mediaRec && mediaRec.state==='recording'){
+    mediaRec.stop(); btn.classList.remove('on'); btn.textContent='🎤'; st.textContent='processing...'; return;
+  }
+  if((chat.cfg.sttMode||'groq')!=='groq'){ st.textContent='Browser speech is selected. Switch to Groq Whisper in Settings.'; return; }
+  if(!chat.cfg.sttKey){ st.textContent='Add your Groq key in Settings first (console.groq.com > API Keys).'; return; }
+  if(!navigator.mediaDevices||!window.MediaRecorder){ st.textContent='This browser cannot record audio.'; return; }
+  try{ mediaStream=await navigator.mediaDevices.getUserMedia({audio:true}); }
+  catch(err){
+    st.textContent = err.name==='NotAllowedError'
+      ? 'Microphone blocked. Click the padlock in the address bar, set Microphone to Allow, then reload.'
+      : err.name==='NotFoundError' ? 'No microphone found.' : 'Microphone error: '+err.name;
+    return;
+  }
+  mediaChunks=[];
+  var mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus'
+           : MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm'
+           : MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : '';
+  try{ mediaRec = mime ? new MediaRecorder(mediaStream,{mimeType:mime}) : new MediaRecorder(mediaStream); }
+  catch(e){ st.textContent='Could not start the recorder: '+e.message; return; }
+  mediaRec.ondataavailable=function(ev){ if(ev.data && ev.data.size) mediaChunks.push(ev.data); };
+  mediaRec.onstop=async function(){
+    try{ mediaStream.getTracks().forEach(function(t){t.stop();}); }catch(e){}
+    var blob=new Blob(mediaChunks,{type:(mediaRec&&mediaRec.mimeType)||'audio/webm'});
+    mediaRec=null;
+    if(blob.size<1200){ st.textContent='Recording too short.'; return; }
+    await transcribe(blob);
+  };
+  mediaRec.start();
+  btn.classList.add('on'); btn.textContent='■';
+  st.textContent='recording — click again to stop';
+};
+
+load();render();cRender();try{resetIdle();}catch(e){}
+if(window.claude&&typeof claude.use==='function')connectDb();
+})();
+</script>
+</body>
+</html>
